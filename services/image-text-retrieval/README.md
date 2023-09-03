@@ -19,7 +19,7 @@ Start API
 ```bash
 python src/main.py
 ```
-
+**Note:** The API will run at `http://localhost:8000`
 ## Easy install with Docker
 Build Docker image
 ```bash
@@ -29,4 +29,5 @@ Start API
 ```bash
 docker run -it -p 8000:8000 image-text-retrieval
 ```
+**Note:** The API will run at `http://localhost:8000`
 
