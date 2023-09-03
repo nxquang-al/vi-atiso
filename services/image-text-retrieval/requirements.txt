@@ -1,0 +1,16 @@
+fastapi==0.103.1
+uvicorn==0.23.2
+pydantic-settings==2.0.3
+
+
+# Models
+torch==1.7.1
+torchvision==0.8.2
+ftfy==6.1.1
+regex
+tqdm==4.66.1
+git+https://github.com/openai/CLIP.git@main
+
+# Vector Database
+faiss-cpu
+
