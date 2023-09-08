@@ -25,6 +25,7 @@ class VisionLanguageModel:
             image_input = self.preprocess(input).unsqueeze(0).to(self.device)
             vector = self.model.encode_image(image_input)
             vector /= vector.norm(dim=-1, keepdim=True)
+            vector = vector.cpu().detach().numpy().astype("float32")
             return vector
         else:
             raise Exception("Invalid input type")
