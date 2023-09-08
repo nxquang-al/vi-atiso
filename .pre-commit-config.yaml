@@ -41,6 +41,7 @@ repos:
     hooks:
       - id: isort
         name: I-sort imports
+        args: ["--profile", "black", "--filter-files"]
 
   - repo: https://github.com/PyCQA/flake8
     rev: 6.0.0

@@ -5,24 +5,23 @@
 # Licensed under The MIT License [see LICENSE for details]
 # --------------------------------------------------------'
 
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from itr import utils
+from itr.modeling_utils import BEiT3Wrapper, _get_base_config, _get_large_config
 from timm.models.registry import register_model
-import numpy as np
-
-import utils
-from modeling_utils import BEiT3Wrapper, _get_base_config, _get_large_config
 
 
 class TwoLayerMLP(nn.Module):
     def __init__(
-            self, 
-            in_features, 
-            hidden_features, 
-            out_features, 
-            norm_layer, 
-            norm_input=True, 
+        self,
+        in_features,
+        hidden_features,
+        out_features,
+        norm_layer,
+        norm_input=True,
     ):
         super().__init__()
         self.norm1 = norm_layer(in_features) if norm_input else nn.Identity()
@@ -55,20 +54,14 @@ class Pooler(nn.Module):
 
 
 class BEiT3ForVisualReasoning(BEiT3Wrapper):
-    def __init__(
-            self, 
-            args, 
-            num_classes, 
-            norm_layer=nn.LayerNorm, 
-            **kwargs
-    ):
-        super(BEiT3ForVisualReasoning, self).__init__(args=args)
+    def __init__(self, args, num_classes, norm_layer=nn.LayerNorm, **kwargs):
+        super().__init__(args=args)
         embed_dim = args.encoder_embed_dim
         self.head = TwoLayerMLP(
-            in_features=embed_dim * 4, 
+            in_features=embed_dim * 4,
             hidden_features=embed_dim * 2,
-            out_features=num_classes, 
-            norm_layer=norm_layer, 
+            out_features=num_classes,
+            norm_layer=norm_layer,
         )
         init_scale = 0.001
         self.head.apply(self._init_weights)
@@ -82,15 +75,15 @@ class BEiT3ForVisualReasoning(BEiT3Wrapper):
 
     def forward(self, image_a, image_b, text_description, padding_mask, **kwargs):
         bsz, _ = text_description.size()
-        
+
         vision_input = torch.cat((image_a, image_b), dim=0)
         language_input = torch.cat((text_description, text_description), dim=0)
         padding_mask = torch.cat((padding_mask, padding_mask), dim=0)
 
         outputs = self.beit3(
-            textual_tokens=language_input, 
-            visual_tokens=vision_input, 
-            text_padding_position=padding_mask, 
+            textual_tokens=language_input,
+            visual_tokens=vision_input,
+            text_padding_position=padding_mask,
         )
         x = outputs["encoder_out"]
         multiway_split_position = outputs["multiway_split_position"]
@@ -101,17 +94,11 @@ class BEiT3ForVisualReasoning(BEiT3Wrapper):
         a, b = torch.split(cls_rep, split_size_or_sections=[bsz, bsz], dim=0)
         cls_rep = torch.cat((a, b), dim=-1)
         return self.head(cls_rep)
-    
+
 
 class BEiT3ForImageClassification(BEiT3Wrapper):
-    def __init__(
-            self, 
-            args, 
-            num_classes, 
-            norm_layer=nn.LayerNorm, 
-            **kwargs
-    ):
-        super(BEiT3ForImageClassification, self).__init__(args=args)
+    def __init__(self, args, num_classes, norm_layer=nn.LayerNorm, **kwargs):
+        super().__init__(args=args)
         embed_dim = args.encoder_embed_dim
         self.fc_norm = norm_layer(embed_dim)
         self.head = nn.Linear(embed_dim, num_classes) if num_classes > 0 else nn.Identity()
@@ -131,17 +118,22 @@ class BEiT3ForImageClassification(BEiT3Wrapper):
 
 
 class BEiT3ForCaptioning(BEiT3Wrapper):
-    def __init__(
-            self, 
-            args, 
-            **kwargs
-    ):
-        super(BEiT3ForCaptioning, self).__init__(args=args)
+    def __init__(self, args, **kwargs):
+        super().__init__(args=args)
         embed_dim = args.encoder_embed_dim
         self.mlm_head = nn.Linear(embed_dim, args.vocab_size)
         self.mlm_head.apply(self._init_weights)
 
-    def forward(self, image, text_ids, padding_mask, language_masked_pos, text_len=None, incremental_state=None, **kwargs):
+    def forward(
+        self,
+        image,
+        text_ids,
+        padding_mask,
+        language_masked_pos,
+        text_len=None,
+        incremental_state=None,
+        **kwargs
+    ):
         text_len = text_len if text_len is not None else text_ids.size(1)
         image_len = self.beit3.vision_embed.num_position_embeddings()
         max_len = text_len + image_len
@@ -149,29 +141,35 @@ class BEiT3ForCaptioning(BEiT3Wrapper):
         i_start, i_end = 0, image_len
         t_start, t_end = image_len, max_len
         # triangle mask for caption to caption
-        uni_mask[t_start:t_end, t_start:t_end] = torch.tril(torch.ones(text_len, text_len, dtype=torch.long, device=text_ids.device))
+        uni_mask[t_start:t_end, t_start:t_end] = torch.tril(
+            torch.ones(text_len, text_len, dtype=torch.long, device=text_ids.device)
+        )
         # full attention for caption to image
         uni_mask[t_start:t_end, i_start:i_end] = 1
         # full attention for image to image
         uni_mask[i_start:i_end, i_start:i_end] = 1
-        uni_mask = 1-uni_mask
+        uni_mask = 1 - uni_mask
 
         if incremental_state is not None:
             for idx in range(self.get_num_layers()):
                 if idx not in incremental_state:
                     incremental_state[idx] = {}
-        
+
         # for incremental decoding
         positions = None
         if image is None:
             uni_mask = uni_mask[-2:]
             padding_mask = None
             # start position (2 (fairseq starts at 2) + cur_position) is equal to text_len
-            positions = torch.arange(text_len, text_ids.size(1) + text_len, device=text_ids.device).long().unsqueeze(0)
+            positions = (
+                torch.arange(text_len, text_ids.size(1) + text_len, device=text_ids.device)
+                .long()
+                .unsqueeze(0)
+            )
 
         outputs = self.beit3(
-            textual_tokens=text_ids, 
-            visual_tokens=image, 
+            textual_tokens=text_ids,
+            visual_tokens=image,
             text_padding_position=padding_mask,
             attn_mask=uni_mask,
             incremental_state=incremental_state,
@@ -189,34 +187,28 @@ class BEiT3ForCaptioning(BEiT3Wrapper):
 
 
 class BEiT3ForVisualQuestionAnswering(BEiT3Wrapper):
-    def __init__(
-            self, 
-            args, 
-            num_classes, 
-            norm_layer=nn.LayerNorm, 
-            **kwargs
-    ):
-        super(BEiT3ForVisualQuestionAnswering, self).__init__(args=args)
+    def __init__(self, args, num_classes, norm_layer=nn.LayerNorm, **kwargs):
+        super().__init__(args=args)
         embed_dim = args.encoder_embed_dim
         self.pooler = Pooler(
-            input_features=embed_dim, 
-            output_features=embed_dim, 
-            norm_layer=norm_layer, 
+            input_features=embed_dim,
+            output_features=embed_dim,
+            norm_layer=norm_layer,
         )
         self.pooler.apply(self._init_weights)
         self.head = nn.Sequential(
-            nn.Linear(embed_dim, embed_dim * 2), 
-            norm_layer(embed_dim * 2), 
-            nn.GELU(), 
-            nn.Linear(embed_dim * 2, num_classes), 
+            nn.Linear(embed_dim, embed_dim * 2),
+            norm_layer(embed_dim * 2),
+            nn.GELU(),
+            nn.Linear(embed_dim * 2, num_classes),
         )
         self.head.apply(self._init_weights)
 
     def forward(self, image, question, padding_mask, **kwargs):
         outputs = self.beit3(
-            textual_tokens=question, 
-            visual_tokens=image, 
-            text_padding_position=padding_mask, 
+            textual_tokens=question,
+            visual_tokens=image,
+            text_padding_position=padding_mask,
         )
         x = outputs["encoder_out"]
         cls_rep = self.pooler(x)
@@ -224,29 +216,27 @@ class BEiT3ForVisualQuestionAnswering(BEiT3Wrapper):
 
 
 class BEiT3ForRetrieval(BEiT3Wrapper):
-    def __init__(
-            self, 
-            args,
-            **kwargs
-    ):
-        super(BEiT3ForRetrieval, self).__init__(args=args)
+    def __init__(self, args, **kwargs):
+        super().__init__(args=args)
         embed_dim = args.encoder_embed_dim
         self.language_head = nn.Linear(embed_dim, embed_dim, bias=False)
         self.vision_head = nn.Linear(embed_dim, embed_dim, bias=False)
         self.language_head.apply(self._init_weights)
         self.vision_head.apply(self._init_weights)
         self.criterion = utils.ClipLoss(
-            rank=utils.get_rank(), 
-            world_size=utils.get_world_size(), 
+            rank=utils.get_rank(),
+            world_size=utils.get_world_size(),
         )
         self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
 
-    def forward(self, image=None, text_description=None, padding_mask=None, only_infer=False, **kwargs):
+    def forward(
+        self, image=None, text_description=None, padding_mask=None, only_infer=False, **kwargs
+    ):
         if image is not None:
             outputs = self.beit3(
-                textual_tokens=None, 
-                visual_tokens=image, 
-                text_padding_position=None, 
+                textual_tokens=None,
+                visual_tokens=image,
+                text_padding_position=None,
             )
             x = outputs["encoder_out"]
             vision_cls = self.vision_head(x[:, 0, :])
@@ -256,21 +246,22 @@ class BEiT3ForRetrieval(BEiT3Wrapper):
 
         if text_description is not None:
             outputs = self.beit3(
-                textual_tokens=text_description, 
-                visual_tokens=None, 
-                text_padding_position=padding_mask, 
+                textual_tokens=text_description,
+                visual_tokens=None,
+                text_padding_position=padding_mask,
             )
             x = outputs["encoder_out"]
             language_cls = self.language_head(x[:, 0, :])
             language_cls = F.normalize(language_cls, dim=-1)
         else:
             language_cls = None
-        
+
         if only_infer:
             return vision_cls, language_cls
         else:
             loss, logits_per_image, logits_per_text = self.criterion(
-                vision_cls, language_cls, self.logit_scale.exp())
+                vision_cls, language_cls, self.logit_scale.exp()
+            )
             return loss, vision_cls, language_cls
 
 
