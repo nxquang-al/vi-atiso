@@ -8,7 +8,7 @@ from beit3_model import Beit3Model
 
 if __name__ == '__main__':
     vlm = Beit3Model(device='cpu')
-    
+
     print(vlm.get_embedding('A man who loves a girl.').shape)
 ```
 

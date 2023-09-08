@@ -37,7 +37,7 @@ async def startup_event():
         keyframes_groups_json_path=settings.KEYFRAMES_GROUPS_JSON_PATH,
     )
     device = "cuda" if settings.DEVICE == "cuda" and torch.cuda.is_available() else "cpu"
-    init_model(model_name=settings.MODEL_NAME, device=device)
+    init_model(device=device)
 
 
 @app.get("/", include_in_schema=False)

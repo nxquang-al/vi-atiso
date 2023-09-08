@@ -1,9 +1,10 @@
+# from .vlm_model import VisionLanguageModel
+from beit3_model import Beit3Model
 from fastapi import APIRouter, File, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from .dtb_cursor import DatabaseCursor
-from .vlm_model import VisionLanguageModel
 
 
 class Item(BaseModel):
@@ -12,7 +13,6 @@ class Item(BaseModel):
 
 
 router = APIRouter()
-
 
 vectordb_cursor = None
 vlm_model = None
@@ -25,11 +25,11 @@ def init_vectordb(**kargs):
         vectordb_cursor = DatabaseCursor(**kargs)
 
 
-def init_model(**kargs):
+def init_model(device: str):
     # Singleton
     global vlm_model
     if vlm_model is None:
-        vlm_model = VisionLanguageModel(**kargs)
+        vlm_model = Beit3Model(device=device)
 
 
 @router.post("/retrieval/image-text")
