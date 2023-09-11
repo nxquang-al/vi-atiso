@@ -4,12 +4,15 @@ pydantic-settings==2.0.3
 
 
 # Models
-torch==1.7.1
-torchvision==0.8.2
+torch==2.0.0
+torchvision==0.15.1
+torchscale==0.2.0
 ftfy==6.1.1
 regex
 tqdm==4.66.1
-git+https://github.com/openai/CLIP.git@main
+transformers==4.33.1
+timm==0.4.12
+sentencepiece==0.1.99
 
 # Vector Database
 faiss-cpu

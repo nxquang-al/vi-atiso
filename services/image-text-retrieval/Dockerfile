@@ -1,7 +1,7 @@
 FROM python:3.8-slim
 
 RUN apt-get update && \
-    apt-get install git -y && \
+    apt-get install git gsutil -y && \
     apt clean && \
     rm -rf /var/cache/apt/*
 
@@ -20,5 +20,13 @@ RUN pip install -U pip && \
 COPY . /proj
 
 WORKDIR /proj
+
+# Download index from Cloud Storage
+RUN mkdir ./data/faiss-index && \
+    gsutil -m cp "gs://thangtd1/faiss-index/index_beit3_L01_to_L20.faiss" ./data/faiss-index/
+
+# Download models and store them in src/itr/beit3_model/
+RUN chmod +x download_models.sh && \
+    download_models.sh
 
 CMD python ./src/main.py
