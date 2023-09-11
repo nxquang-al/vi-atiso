@@ -12,7 +12,7 @@ from timm.models import create_model
 from torchvision import transforms
 from transformers import XLMRobertaTokenizer
 
-# Get current workdir of the this file
+# Get current workdir of this file
 CWD = Path(__file__).parent
 print(CWD)
 

@@ -5,6 +5,11 @@ Create a .env. You can make a copy from my prepared .env.example
 ```bash
 cp .env.example .env
 ```
+
+Export `PYTHONPATH` to import `itr` module from code
+```bash
+export PYTHONPATH="$PWD/src/itr"
+```
 ## Run locally
 Create conda environment, note that python version should be `3.8`
 ```bash
