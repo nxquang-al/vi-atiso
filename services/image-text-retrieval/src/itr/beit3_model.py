@@ -3,8 +3,9 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Union
 
+import modeling_finetune
 import torch
-from itr import utils
+import utils
 from PIL import Image
 from timm.data.constants import IMAGENET_INCEPTION_MEAN, IMAGENET_INCEPTION_STD
 from timm.models import create_model

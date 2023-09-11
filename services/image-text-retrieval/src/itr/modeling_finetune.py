@@ -9,8 +9,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from itr import utils
-from itr.modeling_utils import BEiT3Wrapper, _get_base_config, _get_large_config
+import utils
+from modeling_utils import BEiT3Wrapper, _get_base_config, _get_large_config
 from timm.models.registry import register_model
 
 
