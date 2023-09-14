@@ -41,23 +41,7 @@ const OrSpan = styled.span`
 const App = () => {
   const [query, setQuery] = useState("");
   const [topK, setTopK] = useState(3);
-  const [results, setResults] = useState([
-    {
-      video: "L01_V011",
-      frame_name: "0129.jpg",
-      distance: "1.4808606",
-    },
-    {
-      video: "L01_V029",
-      frame_name: "0122.jpg",
-      distance: "1.4832553",
-    },
-    {
-      video: "L01_V026",
-      frame_name: "0223.jpg",
-      distance: "1.4840636",
-    },
-  ]);
+  const [results, setResults] = useState([]);
 
   const onClear = () => {
     setQuery("");
