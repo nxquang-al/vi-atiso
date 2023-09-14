@@ -1,7 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import styled from "styled-components";
 import KeyFrames from "../KeyFrames";
+import Info from "../Info";
+import axios from "axios";
 
 const Result = styled.div`
   flex-direction: column;
@@ -74,8 +76,6 @@ export const KeyFrame = ({
 
   return (
     <KeyframeContainer
-      //   href={`${ConsoleBucketUrl}/Keyframes/${video}/${keyframe};tab=live_object`}
-      //   target="_blank"
       style={{
         border: scrollTo ? "3px solid red" : "none",
       }}
@@ -98,10 +98,6 @@ export const KeyFrame = ({
 };
 
 const Results = ({ results }) => {
-  const str_pad_left = (string, pad, length) => {
-    return (new Array(length + 1).join(pad) + string).slice(-length);
-  };
-
   return (
     <div
       style={{
@@ -117,11 +113,25 @@ const Results = ({ results }) => {
 
           const [timeStart, setTimeStart] = useState(0);
           const [timeEnd, setTimeEnd] = useState(0);
+          const [frameIdx, setFrameIdx] = useState(0);
 
-          //   const videoRef = useRef(null);
+          const [metadata, setMetadata] = useState(0);
+
+          useEffect(() => {
+            const fetchLengthVideo = async () => {
+              const { data } = await axios.get(
+                `${process.env.REACT_APP_API_ENDPOINT}/${result.video}/metadata`
+              );
+
+              setMetadata(data);
+            };
+
+            fetchLengthVideo();
+          }, []);
 
           const timeUpdate = (e) => {
-            if (e.target.currentTime !== timeEnd) {
+            const epsilon = 1;
+            if (Math.abs(e.target.currentTime - timeEnd) < epsilon) {
               e.target.pause();
             }
           };
@@ -129,44 +139,64 @@ const Results = ({ results }) => {
           const handleVideoMounted = (element) => {
             if (element !== null) {
               element.currentTime = timeStart;
+              if (timeStart > 0) {
+                element.play();
+              }
             }
           };
 
           const onClickVideo = (rangeTime) => {
-            setTimeStart(rangeTime.start);
-            setTimeEnd(rangeTime.end);
+            setTimeStart(parseFloat(rangeTime.start));
+            setTimeEnd(parseFloat(rangeTime.end));
+            setFrameIdx(parseInt(rangeTime.frameIdx, 10));
           };
 
           return (
             <Result key={JSON.stringify(result)}>
-              <div>
-                <KeyFrame
-                  keyframe={result.frame_name}
+              <div
+                style={{
+                  width: "100%",
+                  gap: 20,
+                  justifyContent: "flex-start",
+                  border: "none",
+                }}
+              >
+                <Info
                   video={result.video}
-                  size="large"
-                />
-                <div
-                  style={{
-                    position: "relative",
-                  }}
+                  frameIdx={frameIdx}
+                  metadata={metadata}
+                  timeStart={timeStart}
+                  timeEnd={timeEnd}
                 >
-                  <Tag>
-                    {result.video}.mp4, {result.distance}
-                  </Tag>
-                  <VideoBig
-                    controls
-                    key={videoUrl}
-                    ref={handleVideoMounted}
-                    // ref={videoRef}
-                    muted
-                    onTimeUpdate={(e) => timeUpdate(e)}
+                  <KeyFrame
+                    keyframe={result.frame_name}
+                    video={result.video}
+                    size="large"
+                  />
+                  <div
+                    style={{
+                      position: "relative",
+                    }}
                   >
-                    <source src={videoUrl} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </VideoBig>
-                </div>
+                    <Tag>{result.video}.mp4</Tag>
+                    <VideoBig
+                      controls
+                      key={videoUrl}
+                      ref={handleVideoMounted}
+                      muted
+                      onTimeUpdate={(e) => timeUpdate(e)}
+                    >
+                      <source src={videoUrl} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </VideoBig>
+                  </div>
+                </Info>
               </div>
-              <KeyFrames result={result} onClickVideo={onClickVideo} />
+              <KeyFrames
+                result={result}
+                videoLength={metadata.length}
+                onClickVideo={onClickVideo}
+              />
             </Result>
           );
         })}

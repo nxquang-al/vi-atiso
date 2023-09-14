@@ -15,12 +15,14 @@ from .vlm_model import VisionLanguageModel
 
 import numpy as np
 import csv
+import json
 
 # cred = credentials.Certificate(settings.POLICY_FILE_PATH)
 # app = firebase_admin.initialize_app(cred, {'storageBucket': 'cnc-designs.appspot.com'}, name='storage')
 # bucket = storage.bucket(app=app)
 
 client = storage.Client()
+bucket = client.bucket('thangtd1')
 
 class Item(BaseModel):
     query_text: str
@@ -64,6 +66,19 @@ async def retrieve(item: Item) -> JSONResponse:
         content={"message": "success", "details": search_results},
     )
 
+@router.get("/{video}/metadata")
+async def get_length(video: str = Path(..., description = "Video id")) -> JSONResponse:
+    path_file = "metadata/" + video + ".json"
+    blob = bucket.blob(path_file)
+
+    metadata = {}
+
+    with blob.open('r') as f:
+        metadata = json.load(f)
+
+    return JSONResponse(status_code = status.HTTP_200_OK, content = metadata)
+
+
 @router.get("/{video}/keyframes/list")
 async def get_list_keyframes(
     video: str = Path(..., description= "Video list of keyframes")
@@ -74,7 +89,6 @@ async def get_list_keyframes(
 
     path_meta_file = "map-keyframes/" + video + ".csv"
 
-    bucket = client.bucket('thangtd1')
     blob = bucket.blob(path_meta_file)
     with blob.open('r') as f:
         reader = csv.reader(f)

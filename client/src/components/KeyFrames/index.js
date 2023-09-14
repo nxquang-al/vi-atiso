@@ -4,7 +4,7 @@ import axios from "axios";
 import { KeyFrame } from "../Result";
 import { Button } from "@mui/material";
 
-const KeyFrames = ({ result, onClickVideo }) => {
+const KeyFrames = ({ result, onClickVideo, videoLength }) => {
   const ref = useRef(null);
   const [keyFrames, setKeyFrames] = useState([]);
   const [rangeTime, setRangeTime] = useState([]);
@@ -30,6 +30,7 @@ const KeyFrames = ({ result, onClickVideo }) => {
             {
               start: prev.at(-1).end,
               end: cur[2],
+              frameIdx: cur[4],
             },
           ];
         },
@@ -38,13 +39,13 @@ const KeyFrames = ({ result, onClickVideo }) => {
 
       const dump = preprocess
         .slice(1)
-        .concat({ start: preprocess.at(-1).end, end: 0 });
+        .concat({ start: preprocess.at(-1).end, end: videoLength });
 
       setRangeTime(dump);
     };
 
-    if (result.video !== "") fetchListKeyFrame();
-  }, []);
+    if (result.video !== "" && videoLength > 0) fetchListKeyFrame();
+  }, [videoLength]);
 
   const onClickScrollTo = () => {
     if (ref && ref.current) {
