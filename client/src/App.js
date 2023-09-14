@@ -5,6 +5,8 @@ import styled from "styled-components";
 
 import axios from "axios";
 import Results from "./components/Result";
+import { AnswerProvider } from "./contexts/AnswerContext";
+import Answers from "./components/Answers";
 
 const InputFile = styled.div`
   &:hover {
@@ -113,76 +115,79 @@ const App = () => {
         maxWidth: "90vw",
       }}
     >
-      <div
-        style={{
-          width: "100%",
-          border: "none",
-          flexDirection: "column",
-        }}
-      >
+      <AnswerProvider>
         <div
           style={{
-            width: "50vw",
+            width: "100%",
             border: "none",
             flexDirection: "column",
           }}
         >
-          <InputFile>
-            Drop File Here
-            <OrSpan>Or</OrSpan>
-            Clip to Upload
-          </InputFile>
-          <p>Or</p>
-          <InputText>
-            <TextField
-              placeholder="English Query"
-              multiline={true}
-              sx={{
-                backgroundColor: "rgb(55, 65, 81)",
-                borderRadius: "5px",
-                boxShadow: "rgba(0, 0, 0, 0.1)",
-                textarea: { color: "#c4c4c4" },
-              }}
-              variant="outlined"
-              fullWidth
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-            <TextField
-              placeholder="Top K"
-              multiline={true}
-              sx={{
-                backgroundColor: "rgb(55, 65, 81)",
-                borderRadius: "5px",
-                boxShadow: "rgba(0, 0, 0, 0.1)",
-                textarea: { color: "#c4c4c4", textAlign: "center" },
-              }}
-              variant="outlined"
-              fullWidth
-              value={topK}
-              onChange={(e) => setTopK(e.target.value)}
-            />
-          </InputText>
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              columnGap: 20,
-              width: "100%",
+              width: "50vw",
               border: "none",
-              margin: "10px 0",
+              flexDirection: "column",
             }}
           >
-            <Button fullWidth onClick={onClear}>
-              Clear
-            </Button>
-            <Button fullWidth variant="contained" onClick={onSubmit}>
-              Submit
-            </Button>
+            <InputFile>
+              Drop File Here
+              <OrSpan>Or</OrSpan>
+              Clip to Upload
+            </InputFile>
+            <p>Or</p>
+            <InputText>
+              <TextField
+                placeholder="English Query"
+                multiline={true}
+                sx={{
+                  backgroundColor: "rgb(55, 65, 81)",
+                  borderRadius: "5px",
+                  boxShadow: "rgba(0, 0, 0, 0.1)",
+                  textarea: { color: "#c4c4c4" },
+                }}
+                variant="outlined"
+                fullWidth
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              <TextField
+                placeholder="Top K"
+                multiline={true}
+                sx={{
+                  backgroundColor: "rgb(55, 65, 81)",
+                  borderRadius: "5px",
+                  boxShadow: "rgba(0, 0, 0, 0.1)",
+                  textarea: { color: "#c4c4c4", textAlign: "center" },
+                }}
+                variant="outlined"
+                fullWidth
+                value={topK}
+                onChange={(e) => setTopK(e.target.value)}
+              />
+            </InputText>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                columnGap: 20,
+                width: "100%",
+                border: "none",
+                margin: "10px 0",
+              }}
+            >
+              <Button fullWidth onClick={onClear}>
+                Clear
+              </Button>
+              <Button fullWidth variant="contained" onClick={onSubmit}>
+                Submit
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-      <Results results={results} />
+        <Answers />
+        <Results results={results} />
+      </AnswerProvider>
     </div>
   );
 };

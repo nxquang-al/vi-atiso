@@ -1,7 +1,8 @@
 import { Button } from "@mui/material";
-import React from "react";
+import React, { useContext } from "react";
 
 import styled from "styled-components";
+import { AnswerContext } from "../../contexts/AnswerContext";
 
 const InfoContainer = styled.div`
   border-radius: 8px;
@@ -31,11 +32,27 @@ const Row = styled.div`
   padding: 10px;
 `;
 
-const Info = ({ children, frameIdx, video, metadata, timeStart, timeEnd }) => {
+const Info = ({
+  children,
+  frameIdx,
+  video,
+  metadata,
+  timeStart,
+  timeEnd,
+  disabled,
+}) => {
   const videoUrl =
     timeStart === 0
       ? metadata.watch_url
       : metadata.watch_url + "&t=" + timeStart + "s";
+
+  const { answers, setAnswers } = useContext(AnswerContext);
+
+  console.log();
+
+  const handleSelectAnswer = () => {
+    setAnswers((prev) => [...prev, { video, frameIdx }]);
+  };
 
   return (
     <InfoContainer>
@@ -68,7 +85,16 @@ const Info = ({ children, frameIdx, video, metadata, timeStart, timeEnd }) => {
             {videoUrl}
           </a>
         </Row>
-        <Button fullWidth variant="contained">
+        <Button
+          fullWidth
+          variant="contained"
+          onClick={handleSelectAnswer}
+          disabled={
+            answers.filter(
+              (value) => value.video === video && value.frameIdx === frameIdx
+            ).length > 0
+          }
+        >
           Select
         </Button>
       </Box>
