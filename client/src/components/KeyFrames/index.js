@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 
-import { KeyFrame } from "../Result";
 import { Button } from "@mui/material";
+import KeyFrame from "./keyframe";
 
 const KeyFrames = ({ result, onClickVideo, videoLength }) => {
   const ref = useRef(null);

@@ -67,13 +67,18 @@ async def retrieve(item: Item) -> JSONResponse:
 
 @router.get("/{video}/metadata")
 async def get_length(video: str = Path(..., description = "Video id")) -> JSONResponse:
-    path_file = "metadata/" + video + ".json"
-    blob = bucket.blob(path_file)
+    try:
+    
+        path_file = "metadata/" + video + ".json"
+        blob = bucket.blob(path_file)
 
-    metadata = {}
+        metadata = {}
 
-    with blob.open('r') as f:
-        metadata = json.load(f)
+        with blob.open('r') as f:
+            metadata = json.load(f)
+
+    except Exception:
+        return JSONResponse(status_code = status.HTTP_500_INTERNAL_SERVER_ERROR, content= {"message"  : "err"})
 
     return JSONResponse(status_code = status.HTTP_200_OK, content = metadata)
 

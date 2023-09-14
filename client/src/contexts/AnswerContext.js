@@ -1,11 +1,6 @@
-import React, { createContext, useContext, useMemo, useState } from "react";
-import styled from "styled-components";
+import React, { createContext, useMemo, useState } from "react";
 
 const AnswerContext = createContext(null);
-
-const Provider = styled.div`
-  border: none;
-`;
 
 const AnswerProvider = ({ children }) => {
   const [answers, setAnswers] = useState([]);

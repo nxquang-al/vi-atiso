@@ -48,8 +48,6 @@ const Info = ({
 
   const { answers, setAnswers } = useContext(AnswerContext);
 
-  console.log();
-
   const handleSelectAnswer = () => {
     setAnswers((prev) => [...prev, { video, frameIdx }]);
   };
@@ -80,6 +78,7 @@ const Info = ({
           <a
             target="_blank"
             href={videoUrl}
+            rel="noopener noreferrer"
             style={{ color: "rgb(79, 70, 229)" }}
           >
             {videoUrl}
