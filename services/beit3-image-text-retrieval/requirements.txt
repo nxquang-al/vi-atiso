@@ -17,5 +17,5 @@ sentencepiece==0.1.99
 # Vector Database
 faiss-cpu
 
-# Project settings
-pre-commit
+# Project settings, for development only
+# pre-commit
