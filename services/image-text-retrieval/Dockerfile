@@ -1,9 +1,13 @@
 FROM python:3.8-slim
 
 RUN apt-get update && \
-    apt-get install git gsutil -y && \
+    apt-get install git bash wget iputils-ping -y && \
     apt clean && \
     rm -rf /var/cache/apt/*
+
+WORKDIR /code
+
+COPY requirements.txt /code/requirements.txt
 
 # PYTHONDONTWRITEBYTECODE=1: Disables the creation of .pyc files (compiled bytecode)
 # PYTHONUNBUFFERED=1: Disables buffering of the standard output stream
@@ -12,21 +16,24 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONIOENCODING=utf-8
 
-COPY requirements.txt /tmp/requirements.txt
-
 RUN pip install -U pip && \
-    pip install --no-cache-dir -r /tmp/requirements.txt
+    python -m pip install -r /code/requirements.txt
 
-COPY . /proj
+RUN useradd -m -u 1000 user
 
-WORKDIR /proj
+USER user
 
-# Download index from Cloud Storage
-RUN mkdir ./data/faiss-index && \
-    gsutil -m cp "gs://thangtd1/faiss-index/index_beit3_L01_to_L20.faiss" ./data/faiss-index/
+ENV HOME=/home/user \
+	PATH=/home/user/.local/bin:$PATH
 
-# Download models and store them in src/itr/beit3_model/
-RUN chmod +x download_models.sh && \
-    download_models.sh
+WORKDIR $HOME/app
+
+COPY --chown=user . $HOME/app
+
+# Download index
+# RUN mkdir ./data/faiss-index/ && \
+#     gsutil cp "gs://thangtd1/faiss-index/index_beit3_L01_to_L20.faiss" ./data/faiss-index/
+
+RUN bash $HOME/app/download_models.sh
 
 CMD python ./src/main.py

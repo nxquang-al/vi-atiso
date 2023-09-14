@@ -3,14 +3,14 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Union
 
-import modeling_finetune
 import torch
-import utils
 from PIL import Image
 from timm.data.constants import IMAGENET_INCEPTION_MEAN, IMAGENET_INCEPTION_STD
 from timm.models import create_model
 from torchvision import transforms
 from transformers import XLMRobertaTokenizer
+
+from . import modeling_finetune, utils
 
 # Get current workdir of this file
 CWD = Path(__file__).parent

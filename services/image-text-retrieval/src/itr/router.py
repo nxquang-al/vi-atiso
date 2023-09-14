@@ -1,9 +1,8 @@
-# from .vlm_model import VisionLanguageModel
-from beit3_model import Beit3Model
 from fastapi import APIRouter, File, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+from .beit3_model import Beit3Model
 from .dtb_cursor import DatabaseCursor
 
 

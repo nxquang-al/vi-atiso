@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 import torch
 from config import settings
 from fastapi import FastAPI, Request, status
@@ -7,7 +10,9 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from itr.router import init_model, init_vectordb
 from itr.router import router as router
 
-app = FastAPI(title="Text-to-image Retrieval API")
+app = FastAPI(title="[BeiT-3] Text-to-image Retrieval API")
+
+SERVICE_ROOT = Path(__file__).parent.parent
 
 
 app.add_middleware(
@@ -33,8 +38,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 @app.on_event("startup")
 async def startup_event():
     init_vectordb(
-        index_file_path=settings.INDEX_FILE_PATH,
-        keyframes_groups_json_path=settings.KEYFRAMES_GROUPS_JSON_PATH,
+        index_file_path=os.path.join(SERVICE_ROOT, settings.INDEX_FILE_PATH),
+        keyframes_groups_json_path=os.path.join(SERVICE_ROOT, settings.KEYFRAMES_GROUPS_JSON_PATH),
     )
     device = "cuda" if settings.DEVICE == "cuda" and torch.cuda.is_available() else "cpu"
     init_model(device=device)
