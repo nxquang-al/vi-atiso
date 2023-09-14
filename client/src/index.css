@@ -1,0 +1,26 @@
+body {
+  background-color: rgb(11, 15, 25);
+  margin: 0;
+  padding: 0;
+  color: #c4c4c4;
+  font-family: "Montserrat", ui-sans-serif, "system-ui", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  overflow-x: hidden;
+}
+
+div#root {
+  border: none !important;
+  display: flex;
+  justify-content: center;
+  width: 100vw;
+}
+
+div#root div {
+  border-radius: 5px;
+  border: 1px solid rgb(55, 65, 81);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}

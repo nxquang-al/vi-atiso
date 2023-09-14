@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     # FAISS DATABASE SETTINGS
     INDEX_FILE_PATH: str
     KEYFRAMES_GROUPS_JSON_PATH: str
+    POLICY_FILE_PATH: str
 
     class Config:
         env_file = ROOT / ".env"

@@ -7,13 +7,18 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from itr.router import init_model, init_vectordb
 from itr.router import router as router
 
+import os
+
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
+
 app = FastAPI(title="Text-to-image Retrieval API")
 
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
-    allow_headers=settings.CORS_HEADERS,
+    allow_origins=["*"],
+    allow_headers=["*"],
     allow_credentials=True,
     allow_methods=["*"],
 )
