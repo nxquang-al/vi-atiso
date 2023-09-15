@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useContext } from "react";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 
 import { AnswerProvider } from "../contexts/AnswerContext";

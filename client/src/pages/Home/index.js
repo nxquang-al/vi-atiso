@@ -5,12 +5,7 @@ import styled from "styled-components";
 
 // import Results from "../../components/Result";
 import Answers from "../../components/Answers";
-import {
-  createSearchParams,
-  useLocation,
-  useNavigate,
-  useSearchParams,
-} from "react-router-dom";
+import { createSearchParams, useLocation, useNavigate } from "react-router-dom";
 import { APIContext } from "../../contexts/APIContext";
 import ListAPI from "../../components/ListAPI";
 
@@ -55,7 +50,7 @@ const Home = ({ children }) => {
   }
 
   const navigateParams = useNavigateParams();
-  const { search } = useLocation();
+  const { pathname, search } = useLocation();
 
   const [query, setQuery] = useState(
     new URLSearchParams(search).get("query") || ""
@@ -85,6 +80,8 @@ const Home = ({ children }) => {
   };
 
   const onSubmit = () => {
+    document.title = "Atiso-" + apis[0].name;
+
     navigateParams(apis[0].name, {
       query,
       topK,
@@ -93,6 +90,18 @@ const Home = ({ children }) => {
   };
 
   useEffect(() => {}, []);
+
+  useEffect(() => {
+    const dump = apis.filter((api) => api.name === pathname.slice(1))[0];
+    if (dump) {
+      document.title = "Atiso-" + dump.name;
+      navigateParams(dump.name, {
+        query,
+        topK,
+        modelUrl: dump.url,
+      });
+    }
+  }, [apis]);
 
   return (
     <div
