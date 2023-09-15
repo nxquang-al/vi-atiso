@@ -6,9 +6,9 @@ import styled from "styled-components";
 import Info from "../Info";
 import KeyFrame from "../KeyFrames/keyframe";
 import KeyFrames from "../KeyFrames/";
+import { useLocation } from "react-router-dom";
 
 const Container = styled.div`
-  flex-direction: column;
   border: none !important;
   align-items: flex-start !important;
   width: 100%;
@@ -19,6 +19,17 @@ const VideoBig = styled.video`
   height: 180px;
   border-radius: 6px;
   border: none;
+`;
+
+const Top = styled.div`
+  height: 100%;
+  // min-width: 50px;
+  background-color: rgb(55, 65, 81);
+  color: #c4c4c4;
+  padding: 0px 10px;
+  font-weight: bold;
+  font-size: 2.3rem;
+  text-wrap: break-word;
 `;
 
 // const VideoSmall = styled.video`
@@ -41,20 +52,20 @@ const Tag = styled.span`
   color: rgb(255, 255, 255);
 `;
 
-const Result = ({ result }) => {
+const Result = ({ result, top }) => {
   const videoUrl = `https://storage.googleapis.com/thangtd1/Video/${result.video}.mp4`;
+
+  const { search } = useLocation();
+  const modelUrl = new URLSearchParams(search).get("modelUrl");
 
   const [timeStart, setTimeStart] = useState(result.pts_time);
   const [timeEnd, setTimeEnd] = useState(0);
   const [frameIdx, setFrameIdx] = useState(result.frame_idx);
-
   const [metadata, setMetadata] = useState(0);
 
   useEffect(() => {
     const fetchLengthVideo = async () => {
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_API_ENDPOINT}/${result.video}/metadata`
-      );
+      const { data } = await axios.get(`${modelUrl}/${result.video}/metadata`);
 
       setMetadata(data);
     };
@@ -72,9 +83,9 @@ const Result = ({ result }) => {
   const handleVideoMounted = (element) => {
     if (element !== null) {
       element.currentTime = timeStart;
-      if (timeStart > 0) {
-        element.play();
-      }
+      // if (timeStart > 0) {
+      //   element.play();
+      // }
     }
   };
 
@@ -86,50 +97,57 @@ const Result = ({ result }) => {
 
   return (
     <Container>
+      <Top>{top}</Top>
       <div
         style={{
-          width: "100%",
-          gap: 20,
-          justifyContent: "flex-start",
-          border: "none",
+          flexDirection: "column",
         }}
       >
-        <Info
-          video={result.video}
-          frameIdx={frameIdx}
-          metadata={metadata}
-          timeStart={timeStart}
-          timeEnd={timeEnd}
+        <div
+          style={{
+            width: "100%",
+            gap: 20,
+            justifyContent: "flex-start",
+            border: "none",
+          }}
         >
-          <KeyFrame
-            keyframe={result.frame_name}
+          <Info
             video={result.video}
-            size="large"
-          />
-          <div
-            style={{
-              position: "relative",
-            }}
+            frameIdx={frameIdx}
+            metadata={metadata}
+            timeStart={timeStart}
+            timeEnd={timeEnd}
           >
-            <Tag>{result.video}.mp4</Tag>
-            <VideoBig
-              controls
-              key={videoUrl}
-              ref={handleVideoMounted}
-              muted
-              onTimeUpdate={(e) => timeUpdate(e)}
+            <KeyFrame
+              keyframe={result.frame_name}
+              video={result.video}
+              size="large"
+            />
+            <div
+              style={{
+                position: "relative",
+              }}
             >
-              <source src={videoUrl} type="video/mp4" />
-              Your browser does not support the video tag.
-            </VideoBig>
-          </div>
-        </Info>
+              <Tag>{result.video}.mp4</Tag>
+              <VideoBig
+                controls
+                key={videoUrl}
+                ref={handleVideoMounted}
+                muted
+                onTimeUpdate={(e) => timeUpdate(e)}
+              >
+                <source src={videoUrl} type="video/mp4" />
+                Your browser does not support the video tag.
+              </VideoBig>
+            </div>
+          </Info>
+        </div>
+        <KeyFrames
+          result={result}
+          videoLength={metadata.length}
+          onClickVideo={onClickVideo}
+        />
       </div>
-      <KeyFrames
-        result={result}
-        videoLength={metadata.length}
-        onClickVideo={onClickVideo}
-      />
     </Container>
   );
 };

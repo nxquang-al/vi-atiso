@@ -3,16 +3,20 @@ import axios from "axios";
 
 import { Button } from "@mui/material";
 import KeyFrame from "./keyframe";
+import { useLocation } from "react-router-dom";
 
 const KeyFrames = ({ result, onClickVideo, videoLength }) => {
   const ref = useRef(null);
+  const { search } = useLocation();
   const [keyFrames, setKeyFrames] = useState([]);
   const [rangeTime, setRangeTime] = useState([]);
+
+  const modelUrl = new URLSearchParams(search).get("modelUrl");
 
   useEffect(() => {
     const fetchListKeyFrame = async () => {
       const { data } = await axios.get(
-        `${process.env.REACT_APP_API_ENDPOINT}/${result.video}/keyframes/list`
+        `${modelUrl}/${result.video}/keyframes/list`
       );
 
       const { list_keyframes } = data;
@@ -57,10 +61,14 @@ const KeyFrames = ({ result, onClickVideo, videoLength }) => {
     }
   };
 
+  useEffect(() => {
+    onClickScrollTo();
+  }, []);
+
   return (
     <div
       style={{
-        width: "90vw",
+        width: "calc(90vw - 40px)",
         gap: 10,
       }}
     >
