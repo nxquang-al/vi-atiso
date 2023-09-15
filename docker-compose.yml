@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  client:
+    container_name: frontend-aic
+    image: frontend-aic
+    build:
+      context: ./client
+      target: development
+      dockerfile: Dockerfile
+    volumes:
+      - ./client/src:/app/client/src
+    ports:
+      - 3000:3000
+  beit3:
+    container_name: beit3-model
+    build:
+      context: services/beit3-image-text-retrival
+      dockerfile: Dockerfile
+    ports:
+      - 7865:7865
+  clip:
+    container_name: clip-model
+    byuld:
+      context: services/image-text-retrival
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
