@@ -91,7 +91,10 @@ const Result = ({ result, top }) => {
 
   const handleVideoMounted = (element) => {
     if (element !== null) {
-      element.currentTime = timeStart;
+      if (!isFinite(timeStart)) element.currentTime = timeStart;
+      else {
+        console.log(timeStart);
+      }
       // if (timeStart > 0) {
       //   element.play();
       // }
@@ -101,7 +104,7 @@ const Result = ({ result, top }) => {
   const onClickVideo = (rangeTime) => {
     setTimeStart(parseFloat(rangeTime.start));
     setTimeEnd(parseFloat(rangeTime.end));
-    setFrameIdx(parseInt(rangeTime.frameIdx, 10));
+    setFrameIdx(parseInt(rangeTime.frameIdx));
   };
 
   const mapFrameIdxToFrameName = () => {

@@ -7,11 +7,11 @@ import { useLocation } from "react-router-dom";
 
 const KeyFrames = ({ result, onClickVideo, videoLength }) => {
   const ref = useRef(null);
-  const { search } = useLocation();
   const [keyFrames, setKeyFrames] = useState([]);
   const [rangeTime, setRangeTime] = useState([]);
 
-  const modelUrl = new URLSearchParams(search).get("modelUrl");
+  const { pathname } = useLocation();
+
   const video = result.video || result.video_name;
 
   useEffect(() => {
@@ -19,6 +19,21 @@ const KeyFrames = ({ result, onClickVideo, videoLength }) => {
       // const { data } = await axios.get(
       //   `${modelUrl}/${result.video}/keyframes/list`
       // );
+
+      // if (pathname === "/CLIP2Video") {
+      //   const { data } = await axios.get(
+      //     `${process.env.REACT_APP_API_ENDPOINT}/${video}/frames/list`
+      //   );
+      //   const { list_frames } = data;
+
+      //   if (list_frames.length > 0) {
+      //     setKeyFrames(
+      //       list_frames.map((frame) => frame[0].replace(`Frames/${video}/`, ""))
+      //     );
+
+      //     setRangeTime(list_frames.map((frame) => [frame[1], frame[2]]));
+      //   }
+      // } else {
       const { data } = await axios.get(
         `${process.env.REACT_APP_API_ENDPOINT}/${video}/keyframes/list`
       );
@@ -50,6 +65,7 @@ const KeyFrames = ({ result, onClickVideo, videoLength }) => {
         .concat({ start: preprocess.at(-1).end, end: videoLength });
 
       setRangeTime(dump);
+      // }
     };
 
     if (result.video !== "" && videoLength > 0) fetchListKeyFrame();
