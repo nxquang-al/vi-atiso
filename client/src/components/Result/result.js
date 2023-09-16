@@ -53,19 +53,28 @@ const Tag = styled.span`
 `;
 
 const Result = ({ result, top }) => {
-  const videoUrl = `https://storage.googleapis.com/thangtd1/Video/${result.video}.mp4`;
+  const videoUrl = `https://storage.googleapis.com/thangtd1/Video/${result.video ||
+    result.video_name}.mp4`;
 
   const { search } = useLocation();
   const modelUrl = new URLSearchParams(search).get("modelUrl");
 
-  const [timeStart, setTimeStart] = useState(result.pts_time);
-  const [timeEnd, setTimeEnd] = useState(0);
-  const [frameIdx, setFrameIdx] = useState(result.frame_idx);
+  const [timeStart, setTimeStart] = useState(
+    result.pts_time || result.start_time
+  );
+  const [timeEnd, setTimeEnd] = useState(result.end_time || 0);
+  const [frameIdx, setFrameIdx] = useState(
+    result.frame_idx || parseInt(result.start_time * 25)
+  );
   const [metadata, setMetadata] = useState(0);
 
   useEffect(() => {
     const fetchLengthVideo = async () => {
-      const { data } = await axios.get(`${modelUrl}/${result.video}/metadata`);
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_API_ENDPOINT}/${result.video ||
+          result.video_name}/metadata`
+      );
+      // const { data } = await axios.get(`${modelUrl}/${result.video}/metadata`);
 
       setMetadata(data);
     };
@@ -95,6 +104,10 @@ const Result = ({ result, top }) => {
     setFrameIdx(parseInt(rangeTime.frameIdx, 10));
   };
 
+  const mapFrameIdxToFrameName = () => {
+    return "0010.jpg";
+  };
+
   return (
     <Container>
       <Top>{top}</Top>
@@ -112,14 +125,14 @@ const Result = ({ result, top }) => {
           }}
         >
           <Info
-            video={result.video}
+            video={result.video || result.video_name}
             frameIdx={frameIdx}
             metadata={metadata}
             timeStart={timeStart}
             timeEnd={timeEnd}
           >
             <KeyFrame
-              keyframe={result.frame_name}
+              keyframe={result.frame_name || mapFrameIdxToFrameName()}
               video={result.video}
               size="large"
             />

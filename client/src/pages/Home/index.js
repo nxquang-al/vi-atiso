@@ -53,7 +53,8 @@ const Home = ({ children }) => {
   const { pathname, search } = useLocation();
 
   const [query, setQuery] = useState(
-    new URLSearchParams(search).get("query") || ""
+    new URLSearchParams(search).get("query") ||
+      "People skiing, snowboarding, playing with kids on a snowy mountain. The sky is snowing, foggy, white, barely see anything other than snow"
   );
   const [topK, setTopK] = useState(
     new URLSearchParams(search).get("topK") || 10

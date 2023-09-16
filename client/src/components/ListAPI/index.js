@@ -10,7 +10,7 @@ import TouchAppIcon from "@mui/icons-material/TouchApp";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 
 import { APIContext } from "../../contexts/APIContext";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, createSearchParams } from "react-router-dom";
 
 const Container = styled.div`
   width: calc(90vw + 16px);
@@ -41,10 +41,25 @@ const Api = ({ api }) => {
     setUrl(e.target.value);
   };
 
+  function useNavigateParams() {
+    const navigate = useNavigate();
+
+    return (url, params) => {
+      const searchParams = createSearchParams(params).toString();
+      navigate(url + "?" + searchParams);
+    };
+  }
+
+  const navigateParams = useNavigateParams();
+
   const handleChooseAPI = () => {
-    navigate({
-      pathname: api.name,
-      search: `?${new URLSearchParams(search).toString()}`,
+    const query = new URLSearchParams(search).get("query");
+    const topK = new URLSearchParams(search).get("topK");
+
+    navigateParams(api.name, {
+      query,
+      topK,
+      modelUrl: api.url,
     });
   };
 

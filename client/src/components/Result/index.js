@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import Result from "./result";
 import axios from "axios";
@@ -16,10 +16,11 @@ const Results = () => {
 
   useEffect(() => {
     const fetchAPIModel = async () => {
-      const { data } = await axios.post(`${modelUrl}/retrieval/image-text`, {
+      const { data } = await axios.post(`${modelUrl}`, {
         query_text: query,
         topk: topK,
       });
+      console.log(modelUrl);
 
       if (data.message === "success") {
         setResults(data.details);
@@ -38,7 +39,8 @@ const Results = () => {
         maxWidth: "100%",
       }}
     >
-      {results.length > 0 &&
+      {results &&
+        results.length > 0 &&
         results.map((result, idx) => (
           <Result
             result={result}

@@ -12,18 +12,22 @@ const KeyFrames = ({ result, onClickVideo, videoLength }) => {
   const [rangeTime, setRangeTime] = useState([]);
 
   const modelUrl = new URLSearchParams(search).get("modelUrl");
+  const video = result.video || result.video_name;
 
   useEffect(() => {
     const fetchListKeyFrame = async () => {
+      // const { data } = await axios.get(
+      //   `${modelUrl}/${result.video}/keyframes/list`
+      // );
       const { data } = await axios.get(
-        `${modelUrl}/${result.video}/keyframes/list`
+        `${process.env.REACT_APP_API_ENDPOINT}/${video}/keyframes/list`
       );
 
       const { list_keyframes } = data;
 
       setKeyFrames(
         list_keyframes.map((keyFrame) =>
-          keyFrame[0].replace(`Keyframes/${result.video}/`, "")
+          keyFrame[0].replace(`Keyframes/${video}/`, "")
         )
       );
 

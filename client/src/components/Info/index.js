@@ -74,16 +74,27 @@ const Info = ({
           </Row>
           <Row>{frameIdx}</Row>
         </div>
-        <Row>
-          <a
-            target="_blank"
-            href={videoUrl}
-            rel="noopener noreferrer"
-            style={{ color: "rgb(79, 70, 229)" }}
-          >
-            {videoUrl}
-          </a>
-        </Row>
+        <div
+          style={{
+            border: "none",
+            display: "grid",
+            gridTemplateColumns: "auto 1fr 1fr",
+            width: "100%",
+          }}
+        >
+          <Row>
+            <a
+              target="_blank"
+              href={videoUrl}
+              rel="noopener noreferrer"
+              style={{ color: "rgb(79, 70, 229)" }}
+            >
+              {videoUrl}
+            </a>
+          </Row>
+          <Row>S:{timeStart}</Row>
+          <Row>E:{timeEnd}</Row>
+        </div>
         <Button
           fullWidth
           variant="contained"
