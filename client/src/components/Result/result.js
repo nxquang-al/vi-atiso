@@ -133,7 +133,7 @@ const Result = ({ result, top }) => {
           >
             <KeyFrame
               keyframe={result.frame_name || mapFrameIdxToFrameName()}
-              video={result.video}
+              video={result.video || result.video_name}
               size="large"
             />
             <div

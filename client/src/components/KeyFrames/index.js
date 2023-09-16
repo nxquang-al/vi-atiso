@@ -87,7 +87,7 @@ const KeyFrames = ({ result, onClickVideo, videoLength }) => {
           <KeyFrame
             keyframe={keyFrame}
             rangeTime={rangeTime[idx]}
-            video={result.video}
+            video={video}
             scrollTo={keyFrame === result.frame_name}
             key={keyFrame + "list"}
             propsRef={ref}
