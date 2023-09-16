@@ -7,7 +7,6 @@ from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
-from itr.router import init_model, init_vectordb
 from itr.router import router as router
 
 import os
@@ -15,7 +14,7 @@ import os
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 
-app = FastAPI(title="[BeiT-3] Text-to-image Retrieval API")
+app = FastAPI(title="Metadata API")
 
 SERVICE_ROOT = Path(__file__).parent.parent
 
@@ -42,12 +41,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 @app.on_event("startup")
 async def startup_event():
-    init_vectordb(
-        index_file_path=os.path.join(SERVICE_ROOT, settings.INDEX_FILE_PATH),
-        keyframes_groups_json_path=os.path.join(SERVICE_ROOT, settings.KEYFRAMES_GROUPS_JSON_PATH),
-    )
-    device = "cuda" if settings.DEVICE == "cuda" and torch.cuda.is_available() else "cpu"
-    init_model(device=device)
+    pass
 
 
 @app.get("/", include_in_schema=False)
