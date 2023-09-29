@@ -17,7 +17,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONIOENCODING=utf-8
 
 RUN pip install -U pip && \
-    python -m pip install --no-cache-dir -r /code/requirements.txt
+    pip install --no-cache-dir -r /code/requirements.txt
 
 RUN useradd -m -u 1000 user
 
@@ -30,8 +30,4 @@ WORKDIR $HOME/app
 
 COPY --chown=user . $HOME/app
 
-# Download index
-RUN mkdir ./data/faiss-index/ && \
-    gsutil -m cp "gs://thangtd1/faiss-index/index_clip_L01_to_L20.faiss" ./data/faiss-index/
-
-CMD python ./src/main.py
+CMD ["python", "./src/main.py"]

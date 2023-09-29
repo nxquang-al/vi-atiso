@@ -6,7 +6,7 @@ from PIL import Image
 
 
 class VisionLanguageModel:
-    def __init__(self, model_name: str = "ViT-B/32", device: str = "cpu"):
+    def __init__(self, model_name: str = "ViT-B/32", device: str = "cuda"):
         self._load_model(model_name, device)
         self.device = device
 
