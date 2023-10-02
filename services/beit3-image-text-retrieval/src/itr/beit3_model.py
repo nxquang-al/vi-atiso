@@ -10,7 +10,7 @@ from timm.models import create_model
 from torchvision import transforms
 from transformers import XLMRobertaTokenizer
 
-from . import modeling_finetune, utils
+import modeling_finetune, utils
 
 # Get current workdir of this file
 CWD = Path(__file__).parent
