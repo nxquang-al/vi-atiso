@@ -11,8 +11,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from timm.models.registry import register_model
 
-from . import utils
-from .modeling_utils import BEiT3Wrapper, _get_base_config, _get_large_config
+import utils
+from modeling_utils import BEiT3Wrapper, _get_base_config, _get_large_config
 
 
 class TwoLayerMLP(nn.Module):
