@@ -2,23 +2,14 @@ import React, { useState, useEffect } from "react";
 
 import axios from "axios";
 import styled from "styled-components";
-
 import Info from "../Info";
 import KeyFrame from "../KeyFrames/keyframe";
 import KeyFrames from "../KeyFrames/";
-import { useLocation } from "react-router-dom";
 
 const Container = styled.div`
   border: none !important;
   align-items: flex-start !important;
   width: 100%;
-`;
-
-const VideoBig = styled.video`
-  width: 320px;
-  height: 180px;
-  border-radius: 6px;
-  border: none;
 `;
 
 const Top = styled.div`
@@ -53,20 +44,26 @@ const Tag = styled.span`
 `;
 
 const Result = ({ result, top }) => {
-  const videoUrl = `https://storage.googleapis.com/thangtd1/Video/${result.video ||
-    result.video_name}.mp4`;
+  // const videoUrl = `https://storage.googleapis.com/thangtd1/Video/${result.video ||
+  //   result.video_name}.mp4`;
 
-  const { search } = useLocation();
-  const modelUrl = new URLSearchParams(search).get("modelUrl");
+  // const { search } = useLocation();
+  // const modelUrl = new URLSearchParams(search).get("modelUrl");
 
+  console.log(result);
   const [timeStart, setTimeStart] = useState(
     result.pts_time || result.start_time
   );
-  const [timeEnd, setTimeEnd] = useState(result.end_time || 0);
+  const [timeEnd, setTimeEnd] = useState(
+    result.end_time || result.pts_time + 2
+  );
   const [frameIdx, setFrameIdx] = useState(
     result.frame_idx || parseInt(result.start_time * 25)
   );
   const [metadata, setMetadata] = useState(0);
+
+  const [frameName, setFrameName] = useState(result.frame_name || "");
+  const [folder, setFolder] = useState(result.folder || "Keyframes");
 
   useEffect(() => {
     const fetchLengthVideo = async () => {
@@ -79,36 +76,61 @@ const Result = ({ result, top }) => {
       setMetadata(data);
     };
 
+    const mapFrameIdxToFrameName = async () => {
+      if (timeStart > 0 && timeEnd > timeStart) {
+        const { data } = await axios.get(
+          `${process.env.REACT_APP_OCR_VM_IP}/map-frame/${result.video ||
+            result.video_name}/${timeStart}/${timeEnd}`
+        );
+
+        if (!data.data) {
+          console.log(data.data);
+        }
+
+        if (data.data && frameName === "") {
+          setFolder(
+            data.data.folder.charAt(0).toUpperCase() + data.data.folder.slice(1)
+          );
+          setFrameName(data.data.frame_name);
+        }
+      }
+    };
+
+    mapFrameIdxToFrameName();
+
     fetchLengthVideo();
   }, []);
 
-  const timeUpdate = (e) => {
-    const epsilon = 1;
-    if (Math.abs(e.target.currentTime - timeEnd) < epsilon) {
-      e.target.pause();
-    }
+  // const timeUpdate = (e) => {
+  //   const epsilon = 1;
+  //   if (Math.abs(e.target.currentTime - timeEnd) < epsilon) {
+  //     e.target.pause();
+  //   }
+  // };
+
+  // const handleVideoMounted = (element) => {
+  //   if (element !== null) {
+  //     if (!isFinite(timeStart)) element.currentTime = timeStart;
+  //     else {
+  //       console.log(timeStart);
+  //     }
+  //     // if (timeStart > 0) {
+  //     //   element.play();
+  //     // }
+  //   }
+  // };
+
+  const getId = (url) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+
+    return match && match[2].length === 11 ? match[2] : null;
   };
 
-  const handleVideoMounted = (element) => {
-    if (element !== null) {
-      if (!isFinite(timeStart)) element.currentTime = timeStart;
-      else {
-        console.log(timeStart);
-      }
-      // if (timeStart > 0) {
-      //   element.play();
-      // }
-    }
-  };
-
-  const onClickVideo = (rangeTime) => {
+  const onClickVideo = (rangeTime, frame_id) => {
     setTimeStart(parseFloat(rangeTime.start));
     setTimeEnd(parseFloat(rangeTime.end));
-    setFrameIdx(parseInt(rangeTime.frameIdx));
-  };
-
-  const mapFrameIdxToFrameName = () => {
-    return "0010.jpg";
+    setFrameIdx(parseInt(frame_id));
   };
 
   return (
@@ -135,9 +157,10 @@ const Result = ({ result, top }) => {
             timeEnd={timeEnd}
           >
             <KeyFrame
-              keyframe={result.frame_name || mapFrameIdxToFrameName()}
+              keyframe={frameName}
               video={result.video || result.video_name}
               size="large"
+              folder={folder}
             />
             <div
               style={{
@@ -145,7 +168,19 @@ const Result = ({ result, top }) => {
               }}
             >
               <Tag>{result.video}.mp4</Tag>
-              <VideoBig
+              {metadata.watch_url && (
+                <iframe
+                  title={`${metadata.watch_url}&t=${timeStart}`}
+                  type="text/html"
+                  width="320"
+                  height="180"
+                  src={`https://www.youtube.com/embed/${getId(
+                    metadata.watch_url
+                  )}?start=${parseInt(timeStart)}`}
+                  allowFullScreen
+                ></iframe>
+              )}
+              {/* <VideoBig
                 controls
                 key={videoUrl}
                 ref={handleVideoMounted}
@@ -154,12 +189,12 @@ const Result = ({ result, top }) => {
               >
                 <source src={videoUrl} type="video/mp4" />
                 Your browser does not support the video tag.
-              </VideoBig>
+              </VideoBig> */}
             </div>
           </Info>
         </div>
         <KeyFrames
-          result={result}
+          result={{ ...result, frame_name: frameName, folder: folder }}
           videoLength={metadata.length}
           onClickVideo={onClickVideo}
         />

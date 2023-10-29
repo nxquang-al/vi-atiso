@@ -24,3 +24,7 @@ div#root div {
   align-items: center;
   gap: 10px;
 }
+
+div::-webkit-scrollbar {
+  display: none;
+}

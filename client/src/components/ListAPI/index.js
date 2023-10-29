@@ -20,7 +20,6 @@ const Container = styled.div`
 
 const Api = ({ api }) => {
   const { setApis } = useContext(APIContext);
-  const navigate = useNavigate();
   const { pathname, search } = useLocation();
 
   const [editAble, setEditAble] = useState(false);
@@ -99,7 +98,7 @@ const Api = ({ api }) => {
         sx={{
           color: "#c4c4c4",
           backgroundColor: "#ffffd5",
-          width: 100,
+          width: 200,
           textAlign: "center",
         }}
         onInput={handleChangeAPIName}

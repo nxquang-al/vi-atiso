@@ -43,11 +43,29 @@ const KeyFrame = ({
   scrollTo = false,
   propsRef,
   rangeTime,
+  folder = "Keyframes",
+  frameIdx = 0,
   onClickVideo = () => {},
 }) => {
+  const validationKeyFrameName = () => {
+    const idVideo = parseInt(video.slice(1, 3));
+
+    if (idVideo >= 17) {
+      if (keyframe.length === 8) {
+        return keyframe.slice(1);
+      }
+    }
+
+    return keyframe;
+  };
+
   const [showTag, setShowTag] = useState(size !== "small");
 
-  const keyFrameUrl = `https://storage.googleapis.com/thangtd1/Keyframes/${video}/${keyframe}`;
+  const capFolder = () => {
+    return folder.charAt(0).toUpperCase() + folder.slice(1);
+  };
+
+  const keyFrameUrl = `https://storage.googleapis.com/thangtd1/${capFolder()}/${video}/${validationKeyFrameName()}`;
 
   return (
     <KeyframeContainer
@@ -61,10 +79,14 @@ const KeyFrame = ({
       onMouseLeave={() => {
         setShowTag(size !== "small");
       }}
-      onClick={() => onClickVideo(rangeTime)}
+      onClick={() => onClickVideo(rangeTime, frameIdx)}
       tabIndex={0}
     >
-      {showTag && <Tag>{keyframe}</Tag>}
+      {showTag && (
+        <Tag>
+          {capFolder().charAt(0)} - {validationKeyFrameName()}
+        </Tag>
+      )}
 
       {size === "small" && <ImageSmall src={keyFrameUrl} alt={keyFrameUrl} />}
       {size === "large" && <ImageBig src={keyFrameUrl} alt={keyFrameUrl} />}

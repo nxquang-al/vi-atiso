@@ -5,7 +5,10 @@ import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import styled from "styled-components";
 import { Button, IconButton } from "@mui/material";
-import DownloadIcon from "@mui/icons-material/Download";
+import UploadIcon from "@mui/icons-material/Upload";
+import Dres from "../Dres";
+import CircularProgress from "@mui/material/CircularProgress";
+import axios from "axios";
 const Container = styled.div`
   background-color: rgb(17, 24, 39);
   width: calc(100% - 20px);
@@ -87,14 +90,40 @@ const Ans = ({ answer, idx }) => {
 
 const Answers = () => {
   const { answers } = useContext(AnswerContext);
+  const [sessionId, setSessionId] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState("");
 
-  const handleDownload = () => {
-    const csv = answers.map((d) => `${d.video},${d.frameIdx}`).join("\n");
-    const data = new Blob([csv], { type: "text/csv" });
-    var a = document.createElement("a");
-    a.href = URL.createObjectURL(data);
-    a.download = "filename.csv";
-    a.click();
+  const handleSubmit = async () => {
+    if (answers.length > 0) {
+      setIsLoading(true);
+      const { video, frameIdx } = answers[0];
+
+      if (video && frameIdx) {
+        const { data } = await axios.get(
+          `https://eventretrieval.one/api/v1/submit?item=${video}&frame=${frameIdx}&session=${sessionId}`
+        );
+
+        // console.log(data);
+        alert(JSON.stringify(data, undefined, 4));
+        setStatus(data.submission);
+      }
+      setIsLoading(false);
+    }
+  };
+
+  const parseStatusToColor = () => {
+    if (status === "") {
+      return "primary";
+    }
+
+    if (status === "true" || status === "TRUE") {
+      return "success";
+    }
+
+    if (status === "WRONG") {
+      return "error";
+    }
   };
 
   return (
@@ -107,8 +136,15 @@ const Answers = () => {
             <Ans answer={answer} idx={idx} key={idx} />
           ))}
       </Container>
-      <Button variant="contained" onClick={handleDownload}>
-        CSV <DownloadIcon />
+      <Dres sessionId={sessionId} setSessionId={setSessionId} />
+      <Button
+        variant="contained"
+        onClick={handleSubmit}
+        color={parseStatusToColor()}
+        endIcon={isLoading ? <CircularProgress /> : <UploadIcon />}
+        disabled={answers.length === 0}
+      >
+        Submit
       </Button>
     </div>
   );

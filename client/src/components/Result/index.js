@@ -18,12 +18,15 @@ const Results = () => {
     const fetchAPIModel = async () => {
       const { data } = await axios.post(`${modelUrl}`, {
         query_text: query,
-        topk: topK,
+        topk: parseInt(topK),
       });
-      console.log(modelUrl);
 
       if (data.message === "success") {
         setResults(data.details);
+      }
+
+      if (data.message === "OK") {
+        setResults(data.data);
       }
     };
 

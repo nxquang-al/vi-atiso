@@ -12,17 +12,27 @@ services:
       - ./client/src:/app/client/src
     ports:
       - 3000:3000
-  beit3:
-    container_name: beit3-model
+    environment:
+      - REACT_APP_API_ENDPOINT=http:/localhost:8000
+      - REACT_APP_OCR_VM_IP=localhost
+    restart: always
+
+  metadata:
+    container_name: service-metadata
+    image: service-metadata
     build:
-      context: services/beit3-image-text-retrival
-      dockerfile: Dockerfile
-    ports:
-      - 7865:7865
-  clip:
-    container_name: clip-model
-    byuld:
-      context: services/image-text-retrival
+      context: ./metadata
       dockerfile: Dockerfile
     ports:
       - 8000:8000
+    restart: always
+
+  ocr:
+    container_name: service-ocr
+    image: service-ocr
+    build:
+      context: ./AIC-OCR-search
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    restart: always

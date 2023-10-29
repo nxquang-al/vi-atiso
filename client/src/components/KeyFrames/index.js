@@ -1,74 +1,71 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 
-import { Button } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
 import KeyFrame from "./keyframe";
-import { useLocation } from "react-router-dom";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
 const KeyFrames = ({ result, onClickVideo, videoLength }) => {
   const ref = useRef(null);
   const [keyFrames, setKeyFrames] = useState([]);
-  const [rangeTime, setRangeTime] = useState([]);
 
-  const { pathname } = useLocation();
+  const [start, setStart] = useState(0);
+  const [end, setEnd] = useState(10);
 
   const video = result.video || result.video_name;
 
+  const handleLoadBefore = () => {
+    if (keyFrames.length > 0) {
+      if (start > 0 && start - 10 > 0) {
+        setStart((prev) => prev - 5);
+      }
+      if (start - 10 < 0) {
+        setStart(0);
+      }
+    }
+  };
+
+  const handleLoadAfter = () => {
+    if (keyFrames.length > 0) {
+      if (end + 5 < keyFrames.length - 1) {
+        setEnd((prev) => prev + 5);
+      }
+
+      if (end + 5 > keyFrames.length - 1) {
+        setEnd(keyFrames.length - 1);
+      }
+    }
+  };
+
   useEffect(() => {
     const fetchListKeyFrame = async () => {
-      // const { data } = await axios.get(
-      //   `${modelUrl}/${result.video}/keyframes/list`
-      // );
-
-      // if (pathname === "/CLIP2Video") {
-      //   const { data } = await axios.get(
-      //     `${process.env.REACT_APP_API_ENDPOINT}/${video}/frames/list`
-      //   );
-      //   const { list_frames } = data;
-
-      //   if (list_frames.length > 0) {
-      //     setKeyFrames(
-      //       list_frames.map((frame) => frame[0].replace(`Frames/${video}/`, ""))
-      //     );
-
-      //     setRangeTime(list_frames.map((frame) => [frame[1], frame[2]]));
-      //   }
-      // } else {
       const { data } = await axios.get(
-        `${process.env.REACT_APP_API_ENDPOINT}/${video}/keyframes/list`
+        `${process.env.REACT_APP_OCR_VM_IP}/frame/${video}`
       );
 
-      const { list_keyframes } = data;
-
-      setKeyFrames(
-        list_keyframes.map((keyFrame) =>
-          keyFrame[0].replace(`Keyframes/${video}/`, "")
-        )
+      const idx = data.data.findIndex(
+        (x) =>
+          x.frame_name === result.frame_name &&
+          x.folder === result.folder.toLowerCase()
       );
 
-      const preprocess = list_keyframes.reduce(
-        (prev, cur) => {
-          return [
-            ...prev,
-            {
-              start: prev.at(-1).end,
-              end: cur[2],
-              frameIdx: cur[4],
-            },
-          ];
-        },
-        [{ start: 0, end: 0 }]
-      );
+      if (idx - 5 > 0) {
+        setStart(idx - 5);
+      } else {
+        setStart(0);
+      }
 
-      const dump = preprocess
-        .slice(1)
-        .concat({ start: preprocess.at(-1).end, end: videoLength });
+      if (idx + 5 < data.data.length - 1) {
+        setEnd(idx + 5);
+      } else {
+        setEnd(data.data.length - 1);
+      }
 
-      setRangeTime(dump);
-      // }
+      setKeyFrames(data.data);
     };
 
-    if (result.video !== "" && videoLength > 0) fetchListKeyFrame();
+    if (video !== "" && videoLength > 0) fetchListKeyFrame();
   }, [videoLength]);
 
   const onClickScrollTo = () => {
@@ -99,17 +96,25 @@ const KeyFrames = ({ result, onClickVideo, videoLength }) => {
           justifyContent: "flex-start",
         }}
       >
-        {keyFrames.map((keyFrame, idx) => (
+        <IconButton onClick={handleLoadBefore}>
+          <NavigateBeforeIcon color="info" />
+        </IconButton>
+        {keyFrames.slice(start, end + 1).map((keyFrame, idx) => (
           <KeyFrame
-            keyframe={keyFrame}
-            rangeTime={rangeTime[idx]}
+            keyframe={keyFrame.frame_name}
+            rangeTime={keyFrame.range_time}
             video={video}
-            scrollTo={keyFrame === result.frame_name}
-            key={keyFrame + "list"}
+            scrollTo={keyFrame.frame_name === result.frame_name}
+            key={keyFrame.frame_name + "list" + keyFrame.folder}
             propsRef={ref}
             onClickVideo={onClickVideo}
+            folder={keyFrame.folder}
+            frameIdx={keyFrame.frame_id}
           />
         ))}
+        <IconButton onClick={handleLoadAfter}>
+          <NavigateNextIcon color="info" />
+        </IconButton>
       </div>
       <Button onClick={onClickScrollTo}>Scroll</Button>
     </div>
