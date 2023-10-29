@@ -29,4 +29,9 @@ ENV HOME=/home/user \
 WORKDIR $HOME/app
 
 COPY --chown=user . $HOME/app
+<<<<<<< HEAD:metadata/Dockerfile
 CMD python ./src/main.py
+=======
+
+CMD ["python", "./src/main.py"]
+>>>>>>> 52d3d4cae032e77541d71f562a806f3da2cbdf7e:services/image-text-retrieval/Dockerfile

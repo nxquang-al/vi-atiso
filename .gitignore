@@ -171,3 +171,5 @@ cython_debug/
 *.zip
 *.xlsx
 /convert/submission
+.DS_Store/
+keyframes_groups_L01_to_L20.json
