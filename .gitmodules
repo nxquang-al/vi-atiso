@@ -1,6 +1,0 @@
-[submodule "AIC-OCR-search"]
-	path = AIC-OCR-search
-	url = git@github.com:LMHoang20/AIC-OCR-search.git
-[submodule "AIC-Object-search"]
-	path = AIC-Object-search
-	url = https://github.com/LMHoang20/AIC-Object-search
