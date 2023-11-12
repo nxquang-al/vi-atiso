@@ -5,7 +5,7 @@ services:
     container_name: frontend-aic
     image: frontend-aic
     build:
-      context: ./client
+      context: ./services/client
       target: development
       dockerfile: Dockerfile
     volumes:
@@ -21,18 +21,58 @@ services:
     container_name: service-metadata
     image: service-metadata
     build:
-      context: ./metadata
+      context: ./services/metadata
       dockerfile: Dockerfile
     ports:
       - 8000:8000
+    restart: always
+
+  clip-itr:
+    container_name: service-clip
+    image: service-clip
+    build:
+      context: ./services/clip-itr
+      dockerfile: Dockerfile
+    ports:
+      - 8080:7860
+    restart: always
+
+  beit3-itr:
+    container_name: service-beit3
+    image: service-beit3
+    build:
+      context: ./services/beit3-itr
+      dockerfile: Dockerfile
+    ports:
+      - 8081:7860
+    restart: always
+
+  clip2video-vtr:
+    container_name: service-clip2video
+    image: service-clip2video
+    build:
+      context: ./services/clip2video-vtr
+      dockerfile: Dockerfile
+    ports:
+      - 8082:7860
+    restart: always
+
+  object-search:
+    container_name: service-object
+    image: service-object
+    build:
+      context: ./services/AIC-Object-search
+      dockerfile: Dockerfile
+    ports:
+      - 8083:8080
     restart: always
 
   ocr:
     container_name: service-ocr
     image: service-ocr
     build:
-      context: ./AIC-OCR-search
+      context: ./services/AIC-OCR-search
       dockerfile: Dockerfile
     ports:
-      - 8080:8080
+      - 8084:8080
     restart: always
