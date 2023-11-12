@@ -1,15 +1,15 @@
 import os
-import torch
-from functools import lru_cache
 from pathlib import Path
 from typing import Union
 
-from . import modeling_finetune, utils
+import torch
 from PIL import Image
 from timm.data.constants import IMAGENET_INCEPTION_MEAN, IMAGENET_INCEPTION_STD
 from timm.models import create_model
 from torchvision import transforms
 from transformers import XLMRobertaTokenizer
+
+from . import utils
 
 # Get current workdir of this file
 CWD = Path(__file__).parent
@@ -26,9 +26,7 @@ class Preprocess:
             [
                 transforms.Resize((self.input_size, self.input_size), interpolation=3),
                 transforms.ToTensor(),
-                transforms.Normalize(
-                    mean=IMAGENET_INCEPTION_MEAN, std=IMAGENET_INCEPTION_STD
-                ),
+                transforms.Normalize(mean=IMAGENET_INCEPTION_MEAN, std=IMAGENET_INCEPTION_STD),
             ]
         )
 
@@ -82,9 +80,7 @@ class Beit3Model:
         )
 
         if model_name:
-            utils.load_model_and_may_interpolate(
-                model_path, self.model, "model|module", ""
-            )
+            utils.load_model_and_may_interpolate(model_path, self.model, "model|module", "")
 
         self.preprocessor = Preprocess(
             XLMRobertaTokenizer(os.path.join(CWD, "beit3_model/beit3.spm"))

@@ -1,4 +1,3 @@
-#coding:utf-8
 # @Time : 2021/6/19
 # @Author : Han Fang
 # @File: __init__.py

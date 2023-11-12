@@ -1,11 +1,10 @@
-# coding:utf-8
 # @Time : 2021/6/19
 # @File: module_clip.py
 # @Version: version 1.0
 # Adapted from: https://github.com/openai/CLIP/blob/main/clip/clip.py
 
-from collections import OrderedDict
 import os
+from collections import OrderedDict
 
 import torch
 from torch import nn
@@ -73,9 +72,7 @@ class ResidualAttentionBlock(nn.Module):
             attn_mask_ = self.attn_mask(x.size(0))  # LND
 
         attn_mask_ = (
-            attn_mask_.to(dtype=x.dtype, device=x.device)
-            if attn_mask_ is not None
-            else None
+            attn_mask_.to(dtype=x.dtype, device=x.device) if attn_mask_ is not None else None
         )
         return self.attn(x, x, x, need_weights=False, attn_mask=attn_mask_)[0]
 
@@ -152,9 +149,7 @@ class VisualTransformer(nn.Module):
         x = torch.cat(
             [
                 self.class_embedding.to(x.dtype)
-                + torch.zeros(
-                    x.shape[0], 1, x.shape[-1], dtype=x.dtype, device=x.device
-                ),
+                + torch.zeros(x.shape[0], 1, x.shape[-1], dtype=x.dtype, device=x.device),
                 x,
             ],
             dim=1,
@@ -241,9 +236,7 @@ class CLIP(nn.Module):
         nn.init.normal_(self.token_embedding.weight, std=0.02)
         nn.init.normal_(self.positional_embedding, std=0.01)
 
-        proj_std = (self.transformer.width**-0.5) * (
-            (2 * self.transformer.layers) ** -0.5
-        )
+        proj_std = (self.transformer.width**-0.5) * ((2 * self.transformer.layers) ** -0.5)
         attn_std = self.transformer.width**-0.5
         fc_std = (2 * self.transformer.width) ** -0.5
         for block in self.transformer.resblocks:
@@ -262,9 +255,7 @@ class CLIP(nn.Module):
         if os.path.exists(clip_path):
             pass
         else:
-            raise RuntimeError(
-                f"Model ViT-B/32 not found; available models = {available_models()}"
-            )
+            raise RuntimeError(f"Model ViT-B/32 not found; available models = {available_models()}")
 
         try:
             # loading JIT archive
@@ -362,26 +353,26 @@ class CLIP(nn.Module):
 def convert_weights(model: nn.Module):
     """Convert applicable model parameters to fp16"""
 
-    def _convert_weights_to_fp16(l):
-        if isinstance(l, (nn.Conv1d, nn.Conv2d, nn.Conv3d, nn.Linear)):
-            l.weight.data = l.weight.data.half()
-            if l.bias is not None:
-                l.bias.data = l.bias.data.half()
+    def _convert_weights_to_fp16(layer):
+        if isinstance(layer, (nn.Conv1d, nn.Conv2d, nn.Conv3d, nn.Linear)):
+            layer.weight.data = layer.weight.data.half()
+            if layer.bias is not None:
+                layer.bias.data = layer.bias.data.half()
 
-        if isinstance(l, nn.MultiheadAttention):
+        if isinstance(layer, nn.MultiheadAttention):
             for attr in [
                 *[f"{s}_proj_weight" for s in ["in", "q", "k", "v"]],
                 "in_proj_bias",
                 "bias_k",
                 "bias_v",
             ]:
-                tensor = getattr(l, attr)
+                tensor = getattr(layer, attr)
                 if tensor is not None:
                     tensor.data = tensor.data.half()
 
         for name in ["text_projection", "proj"]:
-            if hasattr(l, name):
-                attr = getattr(l, name)
+            if hasattr(layer, name):
+                attr = getattr(layer, name)
                 if attr is not None:
                     attr.data = attr.data.half()
 

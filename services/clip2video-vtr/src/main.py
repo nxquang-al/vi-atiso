@@ -1,5 +1,7 @@
-import torch
 import os
+from pathlib import Path
+
+import torch
 from config import settings
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
@@ -8,7 +10,6 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from vtr.router import init_model, init_vectordb
 from vtr.router import router as router
 from vtr.utils.config import get_args
-from pathlib import Path
 
 CWD = Path(__file__).parent
 
@@ -41,9 +42,7 @@ async def startup_event():
         index_file_path=settings.INDEX_FILE_PATH,
         annotations_path=settings.ANNOTATIONS_PATH,
     )
-    device = (
-        "cuda" if settings.DEVICE == "cuda" and torch.cuda.is_available() else "cpu"
-    )
+    device = "cuda" if settings.DEVICE == "cuda" and torch.cuda.is_available() else "cpu"
     task_config = get_args()
     task_config.__dict__["temporal_type"] = settings.TEMPORAL_TYPE
     task_config.__dict__["temporal_proj"] = settings.TEMPORAL_PROJ
@@ -53,14 +52,12 @@ async def startup_event():
     task_config.__dict__["center_proj"] = settings.CENTER_PROJ
     task_config.__dict__["local_rank"] = settings.LOCAL_RANK
     task_config.__dict__["cross_model"] = settings.CROSS_MODEl
-    task_config.__dict__[
-        "cross_number_hidden_layers"
-    ] = settings.CROSS_NUMBER_OF_HIDDEN_LAYERS
+    task_config.__dict__["cross_number_hidden_layers"] = settings.CROSS_NUMBER_OF_HIDDEN_LAYERS
     task_config.__dict__["clip_path"] = os.path.join(CWD, settings.CLIP_MODEL_PATH)
     task_config.__dict__["max_words"] = 32
     init_model(
         checkpoint_path=os.path.join(CWD, settings.CLIP2Video_MODEL_PATH),
-        device=settings.DEVICE,
+        device=device,
         task_config=task_config,
     )
 

@@ -1,9 +1,7 @@
 import json
-import faiss
-import os
-
 from functools import lru_cache
-from pathlib import Path
+
+import faiss
 
 
 class DatabaseCursor:
@@ -15,9 +13,7 @@ class DatabaseCursor:
         subframes_groups_json_path: str,
     ):
         self._load_index(index_file_path, index_subframes_file_path)
-        self._load_keyframes_groups_info(
-            keyframes_groups_json_path, subframes_groups_json_path
-        )
+        self._load_keyframes_groups_info(keyframes_groups_json_path, subframes_groups_json_path)
 
     @lru_cache(maxsize=1)
     def _load_index(self, index_file_path, index_subframes_file_path):
@@ -25,7 +21,7 @@ class DatabaseCursor:
         index_subframes = faiss.read_index(index_subframes_file_path)
         try:
             self.index.merge_from(index_subframes)
-        except:
+        except Exception:
             raise Exception("dtb_cursor::cannot merge keyframes and subframes index")
 
     @lru_cache(maxsize=1)
@@ -52,8 +48,6 @@ class DatabaseCursor:
         for i in range(len(ids[0])):
             frame_detail = self.frames_groups_info[ids[0][i]]
             frame_detail["distance"] = str(distances[0][i])
-            frame_detail["folder"] = (
-                "Keyframes" if ids[0][i] < self.no_keyframes else "Subframes"
-            )
+            frame_detail["folder"] = "Keyframes" if ids[0][i] < self.no_keyframes else "Subframes"
             results.append(frame_detail)
         return results

@@ -19,10 +19,10 @@ class Settings(BaseSettings):
     DEVICE: str = "cpu"
     CROSS_MODEl: str = "cross-base"
 
-    ## For TDB Block
+    # For TDB Block
     TEMPORAL_TYPE: str = "TDB"
     TEMPORAL_PROJ: str = "sigmoid_selfA"
-    ## For TAB block
+    # For TAB block
     CENTER_TYPE: str = "TAB"
     CENTER_K: int = 5
     CENTER_WEIGHT: float = 0.5

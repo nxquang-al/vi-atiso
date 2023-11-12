@@ -1,4 +1,4 @@
-from fastapi import APIRouter, File, status
+from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
@@ -37,7 +37,7 @@ async def retrieve(item: Item) -> JSONResponse:
     try:
         query_vector = vlm_model.get_embedding(input=item.query_text)
         search_results = vectordb_cursor.kNN_search(query_vector, item.topk)
-    except Exception:
+    except:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"message": "Search error"},

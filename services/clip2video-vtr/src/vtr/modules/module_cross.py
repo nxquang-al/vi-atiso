@@ -1,17 +1,14 @@
 # Adapted from https://github.com/ArrowLuo/CLIP4Clip/blob/master/modules/module_cross.py
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 
 import json
 import logging
-
+from collections import OrderedDict
 
 import torch
 from torch import nn
+
 from .until_config import PretrainedConfig
 from .until_module import LayerNorm
-from collections import OrderedDict
 
 logger = logging.getLogger(__name__)
 
@@ -21,23 +18,26 @@ WEIGHTS_NAME = 'cross_pytorch_model.bin'
 
 
 class CrossConfig(PretrainedConfig):
-    """Configuration class to store the configuration of a `CrossModel`.
-    """
+    """Configuration class to store the configuration of a `CrossModel`."""
+
     pretrained_model_archive_map = PRETRAINED_MODEL_ARCHIVE_MAP
     config_name = CONFIG_NAME
     weights_name = WEIGHTS_NAME
-    def __init__(self,
-                 vocab_size_or_config_json_file,
-                 hidden_size=768,
-                 num_hidden_layers=12,
-                 num_attention_heads=12,
-                 intermediate_size=3072,
-                 hidden_act="gelu",
-                 hidden_dropout_prob=0.1,
-                 attention_probs_dropout_prob=0.1,
-                 max_position_embeddings=512,
-                 type_vocab_size=2,
-                 initializer_range=0.02):
+
+    def __init__(
+        self,
+        vocab_size_or_config_json_file,
+        hidden_size=768,
+        num_hidden_layers=12,
+        num_attention_heads=12,
+        intermediate_size=3072,
+        hidden_act="gelu",
+        hidden_dropout_prob=0.1,
+        attention_probs_dropout_prob=0.1,
+        max_position_embeddings=512,
+        type_vocab_size=2,
+        initializer_range=0.02,
+    ):
         """Constructs CrossConfig.
 
         Args:
@@ -63,7 +63,7 @@ class CrossConfig(PretrainedConfig):
                 initializing all weight matrices.
         """
         if isinstance(vocab_size_or_config_json_file, str):
-            with open(vocab_size_or_config_json_file, "r", encoding='utf-8') as reader:
+            with open(vocab_size_or_config_json_file, encoding='utf-8') as reader:
                 json_config = json.loads(reader.read())
             for key, value in json_config.items():
                 self.__dict__[key] = value
@@ -80,12 +80,16 @@ class CrossConfig(PretrainedConfig):
             self.type_vocab_size = type_vocab_size
             self.initializer_range = initializer_range
         else:
-            raise ValueError("First argument must be either a vocabulary size (int)"
-                             "or the path to a pretrained model config file (str)")
+            raise ValueError(
+                "First argument must be either a vocabulary size (int)"
+                "or the path to a pretrained model config file (str)"
+            )
+
 
 class QuickGELU(nn.Module):
     def forward(self, x: torch.Tensor):
         return x * torch.sigmoid(1.702 * x)
+
 
 class ResidualAttentionBlock(nn.Module):
     def __init__(self, d_model: int, n_head: int):
@@ -93,11 +97,15 @@ class ResidualAttentionBlock(nn.Module):
 
         self.attn = nn.MultiheadAttention(d_model, n_head)
         self.ln_1 = LayerNorm(d_model)
-        self.mlp = nn.Sequential(OrderedDict([
-            ("c_fc", nn.Linear(d_model, d_model * 4)),
-            ("gelu", QuickGELU()),
-            ("c_proj", nn.Linear(d_model * 4, d_model))
-        ]))
+        self.mlp = nn.Sequential(
+            OrderedDict(
+                [
+                    ("c_fc", nn.Linear(d_model, d_model * 4)),
+                    ("gelu", QuickGELU()),
+                    ("c_proj", nn.Linear(d_model * 4, d_model)),
+                ]
+            )
+        )
         self.ln_2 = LayerNorm(d_model)
         self.n_head = n_head
 
@@ -113,12 +121,15 @@ class ResidualAttentionBlock(nn.Module):
         x = x + self.mlp(self.ln_2(x))
         return (x, attn_mask)
 
+
 class Transformer(nn.Module):
     def __init__(self, width: int, layers: int, heads: int):
         super().__init__()
         self.width = width
         self.layers = layers
-        self.resblocks = nn.Sequential(*[ResidualAttentionBlock(width, heads) for _ in range(layers)])
+        self.resblocks = nn.Sequential(
+            *[ResidualAttentionBlock(width, heads) for _ in range(layers)]
+        )
 
     def forward(self, x: torch.Tensor, attn_mask: torch.Tensor):
         return self.resblocks((x, attn_mask))[0]

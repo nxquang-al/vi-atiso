@@ -1,4 +1,3 @@
-# coding=utf-8
 # Copyright 2018 The Google AI Language Team Authors and The HugginFace Inc. team.
 # Copyright (c) 2018, NVIDIA CORPORATION.  All rights reserved.
 #
@@ -16,10 +15,11 @@
 """PyTorch BERT model."""
 
 import logging
-import torch
-from torch import nn
-import torch.nn.functional as F
 import math
+
+import torch
+import torch.nn.functional as F
+from torch import nn
 from vtr.modules.until_config import PretrainedConfig
 
 logger = logging.getLogger(__name__)
@@ -43,7 +43,7 @@ ACT2FN = {"gelu": gelu, "relu": torch.nn.functional.relu, "swish": swish}
 class LayerNorm(nn.Module):
     def __init__(self, hidden_size, eps=1e-12):
         """Construct a layernorm module in the TF style (epsilon inside the square root)."""
-        super(LayerNorm, self).__init__()
+        super().__init__()
         self.weight = nn.Parameter(torch.ones(hidden_size))
         self.bias = nn.Parameter(torch.zeros(hidden_size))
         self.variance_epsilon = eps
@@ -61,7 +61,7 @@ class PreTrainedModel(nn.Module):
     """
 
     def __init__(self, config, *inputs, **kwargs):
-        super(PreTrainedModel, self).__init__()
+        super().__init__()
         if not isinstance(config, PretrainedConfig):
             raise ValueError(
                 "Parameter config in `{}(config)` should be an instance of class `PretrainedConfig`. "
@@ -176,9 +176,7 @@ class PreTrainedModel(nn.Module):
         except StopIteration:
             # For nn.DataParallel compatibility in PyTorch 1.5
             def find_tensor_attributes(module: nn.Module):
-                tuples = [
-                    (k, v) for k, v in module.__dict__.items() if torch.is_tensor(v)
-                ]
+                tuples = [(k, v) for k, v in module.__dict__.items() if torch.is_tensor(v)]
                 return tuples
 
             gen = self._named_members(get_members_fn=find_tensor_attributes)
@@ -206,7 +204,7 @@ class CrossEn(nn.Module):
     def __init__(
         self,
     ):
-        super(CrossEn, self).__init__()
+        super().__init__()
 
     def forward(self, sim_matrix):
         logpt = F.log_softmax(sim_matrix, dim=-1)

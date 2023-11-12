@@ -9,9 +9,10 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from timm.models.registry import register_model
+
 from . import utils
 from .modeling_utils import BEiT3Wrapper, _get_base_config, _get_large_config
-from timm.models.registry import register_model
 
 
 class TwoLayerMLP(nn.Module):
@@ -101,9 +102,7 @@ class BEiT3ForImageClassification(BEiT3Wrapper):
         super().__init__(args=args)
         embed_dim = args.encoder_embed_dim
         self.fc_norm = norm_layer(embed_dim)
-        self.head = (
-            nn.Linear(embed_dim, num_classes) if num_classes > 0 else nn.Identity()
-        )
+        self.head = nn.Linear(embed_dim, num_classes) if num_classes > 0 else nn.Identity()
 
         self.fc_norm.apply(self._init_weights)
         self.head.apply(self._init_weights)
@@ -139,9 +138,7 @@ class BEiT3ForCaptioning(BEiT3Wrapper):
         text_len = text_len if text_len is not None else text_ids.size(1)
         image_len = self.beit3.vision_embed.num_position_embeddings()
         max_len = text_len + image_len
-        uni_mask = torch.zeros(
-            (max_len, max_len), dtype=torch.long, device=text_ids.device
-        )
+        uni_mask = torch.zeros((max_len, max_len), dtype=torch.long, device=text_ids.device)
         i_start, i_end = 0, image_len
         t_start, t_end = image_len, max_len
         # triangle mask for caption to caption
@@ -166,9 +163,7 @@ class BEiT3ForCaptioning(BEiT3Wrapper):
             padding_mask = None
             # start position (2 (fairseq starts at 2) + cur_position) is equal to text_len
             positions = (
-                torch.arange(
-                    text_len, text_ids.size(1) + text_len, device=text_ids.device
-                )
+                torch.arange(text_len, text_ids.size(1) + text_len, device=text_ids.device)
                 .long()
                 .unsqueeze(0)
             )
@@ -236,12 +231,7 @@ class BEiT3ForRetrieval(BEiT3Wrapper):
         self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / 0.07))
 
     def forward(
-        self,
-        image=None,
-        text_description=None,
-        padding_mask=None,
-        only_infer=False,
-        **kwargs
+        self, image=None, text_description=None, padding_mask=None, only_infer=False, **kwargs
     ):
         if image is not None:
             outputs = self.beit3(

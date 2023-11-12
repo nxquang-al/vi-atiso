@@ -1,20 +1,20 @@
-#coding:utf-8
 # @Time : 2021/6/19
 # @Author : Han Fang
 # @File: dataloader.py
 # @Version: version 1.0
-import sys
 import os
-sys.path.append(os.path.dirname(__file__) + os.sep + '../')
+import sys
 
 import torch
-from torch.utils.data import DataLoader
-from dataloaders.dataloader_msrvtt_frame import MSRVTT_single_sentence_dataLoader
-from dataloaders.dataloader_msrvtt_frame import MSRVTT_multi_sentence_dataLoader
+from dataloaders.dataloader_aic2023_frame import AIC2023_single_sentence_dataLoader
+from dataloaders.dataloader_msrvtt_frame import (MSRVTT_multi_sentence_dataLoader,
+                                                 MSRVTT_single_sentence_dataLoader,)
+from dataloaders.dataloader_msrvttfull_frame import MSRVTTFULL_multi_sentence_dataLoader
 from dataloaders.dataloader_msvd_frame import MSVD_multi_sentence_dataLoader
 from dataloaders.dataloader_vatexEnglish_frame import VATEXENGLISH_multi_sentence_dataLoader
-from dataloaders.dataloader_msrvttfull_frame import MSRVTTFULL_multi_sentence_dataLoader
-from dataloaders.dataloader_aic2023_frame import AIC2023_single_sentence_dataLoader
+from torch.utils.data import DataLoader
+
+sys.path.append(os.path.dirname(__file__) + os.sep + "../")
 
 
 def dataloader_vatexEnglish_train(args, tokenizer):
@@ -83,7 +83,6 @@ def dataloader_vatexEnglish_test(args, tokenizer, subset="test"):
     return dataloader, len(vatexEnglish_dataset)
 
 
-
 def dataloader_msrvtt_train(args, tokenizer):
     """return dataloader for training msrvtt-9k
     Args:
@@ -119,6 +118,7 @@ def dataloader_msrvtt_train(args, tokenizer):
 
     return dataloader, len(msrvtt_train_set), train_sampler
 
+
 def dataloader_msrvtt_test(args, tokenizer):
     """return dataloader for testing 1k-A protocol
     Args:
@@ -147,6 +147,7 @@ def dataloader_msrvtt_test(args, tokenizer):
     )
     return dataloader, len(msrvtt_test_set)
 
+
 def dataloader_msrvttfull_test(args, tokenizer):
     """return dataloader for testing full protocol
     Args:
@@ -157,7 +158,7 @@ def dataloader_msrvttfull_test(args, tokenizer):
         len(msrvtt_test_set): length
     """
     msrvtt_test_set = MSRVTTFULL_multi_sentence_dataLoader(
-        subset='test',
+        subset="test",
         csv_path=args.val_csv,
         json_path=args.data_path,
         features_path=args.features_path,
@@ -175,6 +176,7 @@ def dataloader_msrvttfull_test(args, tokenizer):
         drop_last=False,
     )
     return dataloader, len(msrvtt_test_set)
+
 
 def dataloader_msvd_train(args, tokenizer):
     """return dataloader for training msvd
@@ -211,6 +213,7 @@ def dataloader_msvd_train(args, tokenizer):
 
     return dataloader, len(msvd_dataset), train_sampler
 
+
 def dataloader_msvd_test(args, tokenizer, subset="test"):
     """return dataloader for testing msvd in multi-sentence captions
     Args:
@@ -240,8 +243,9 @@ def dataloader_msvd_test(args, tokenizer, subset="test"):
     )
     return dataloader, len(msvd_test_set)
 
+
 def dataloader_aic2023_test(args, tokenizer):
-    """return dataloader for testing AIC2023 with English captions     
+    """return dataloader for testing AIC2023 with English captions
     Args:
         args: hyper-parameters
         tokenizer: tokenizer

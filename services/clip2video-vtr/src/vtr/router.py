@@ -1,9 +1,9 @@
-from fastapi import APIRouter, File, status
+from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from .predictor import CLIP2VideoModel
 from .dtb_cursor import DatabaseCursor
+from .predictor import CLIP2VideoModel
 
 
 class Item(BaseModel):

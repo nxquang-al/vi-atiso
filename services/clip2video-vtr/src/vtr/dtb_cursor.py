@@ -1,7 +1,7 @@
-import pandas as pd
 from functools import lru_cache
 
 import faiss
+import pandas as pd
 
 
 class DatabaseCursor:
@@ -45,9 +45,7 @@ class DatabaseCursor:
         distances, ids = self.index.search(query_vector, topk)
         for i in range(len(ids[0])):
             item = self.annotations.iloc[ids[0][i]]
-            details = self.reformat_outputs(
-                item["video_id"], item["start_time"], item["end_time"]
-            )
+            details = self.reformat_outputs(item["video_id"], item["start_time"], item["end_time"])
             details["distance"] = str(distances[0][i])
             results.append(details)
         return results

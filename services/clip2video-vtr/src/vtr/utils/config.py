@@ -1,4 +1,3 @@
-# coding:utf-8
 # @Time : 2021/4/25 9:56 下午
 # @Author : Han Fang
 # @File: config.py
@@ -28,9 +27,7 @@ def get_args(description="CLIP2Video on Dideo-Text Retrieval Task"):
         help="feature path",
     )
     parser.add_argument("--num_thread_reader", type=int, default=1, help="")
-    parser.add_argument(
-        "--batch_size_val", type=int, default=3500, help="batch size eval"
-    )
+    parser.add_argument("--batch_size_val", type=int, default=3500, help="batch size eval")
     parser.add_argument("--seed", type=int, default=42, help="random seed")
     parser.add_argument("--max_words", type=int, default=32, help="")
     parser.add_argument("--max_frames", type=int, default=100, help="")
@@ -59,9 +56,7 @@ def get_args(description="CLIP2Video on Dideo-Text Retrieval Task"):
         action="store_true",
         help="Set this flag if you are using an uncased model.",
     )
-    parser.add_argument(
-        "--n_gpu", type=int, default=1, help="Changed in the execute process."
-    )
+    parser.add_argument("--n_gpu", type=int, default=1, help="Changed in the execute process.")
     parser.add_argument(
         "--cache_dir",
         default="",
@@ -110,21 +105,15 @@ def get_args(description="CLIP2Video on Dideo-Text Retrieval Task"):
     )
 
     # for different vocab size
-    parser.add_argument(
-        "--vocab_size", type=int, default=49408, help="the number of vocab size"
-    )
+    parser.add_argument("--vocab_size", type=int, default=49408, help="the number of vocab size")
 
     # for TDB block
     parser.add_argument("--temporal_type", type=str, default="", help="TDB type")
-    parser.add_argument(
-        "--temporal_proj", type=str, default="", help="sigmoid_mlp | sigmoid_selfA"
-    )
+    parser.add_argument("--temporal_proj", type=str, default="", help="sigmoid_mlp | sigmoid_selfA")
 
     # for TAB block
     parser.add_argument("--center_type", type=str, default="", help="TAB")
-    parser.add_argument(
-        "--centerK", type=int, default=5, help="center number for clustering."
-    )
+    parser.add_argument("--centerK", type=int, default=5, help="center number for clustering.")
     parser.add_argument(
         "--center_weight",
         type=float,

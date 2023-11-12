@@ -1,14 +1,11 @@
-from functools import lru_cache
-from typing import Union
-
 import os
-import torch
+from typing import Dict, Union
+
 import numpy as np
+import torch
 from PIL import Image
 from vtr.modules.modeling import CLIP2Video
 from vtr.modules.tokenization_clip import SimpleTokenizer as ClipTokenizer
-from typing import Dict
-from pathlib import Path
 
 # from utils.config import get_args
 
@@ -64,9 +61,7 @@ class TextPreprocessor:
 
 
 class CLIP2VideoModel:
-    def __init__(
-        self, checkpoint_path: str, device: str = "cpu", task_config: Dict = {}
-    ):
+    def __init__(self, checkpoint_path: str, device: str = "cpu", task_config: Dict = {}):
         self._load_model(checkpoint_path, device, task_config)
         self.device = device
 
@@ -101,12 +96,8 @@ class CLIP2VideoModel:
             segment_ids = torch.tensor(
                 pairs_segment[np.newaxis, ...], dtype=torch.long, device=self.device
             )
-            sequence_output = self.model.get_sequence_output(
-                input_ids, segment_ids, input_mask
-            )
-            text_features = self.model.extract_text_features(
-                sequence_output, input_mask
-            )
+            sequence_output = self.model.get_sequence_output(input_ids, segment_ids, input_mask)
+            text_features = self.model.extract_text_features(sequence_output, input_mask)
             return text_features.cpu().detach().numpy()
         else:
             raise ValueError("Invalid Input Type")

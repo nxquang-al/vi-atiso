@@ -1,8 +1,8 @@
-import pandas as pd
+import os
 import shutil
 import sys
 
-import os
+import pandas as pd
 
 INPUT_FILE = sys.argv[1]
 
@@ -15,9 +15,9 @@ count = 1
 
 for sheet_name in xl_file.sheet_names:
     answers = xl_file.parse(sheet_name)
-    if (str(count) in sheet_name):
-        filename = OUTPUT_FILE+ '/' + 'query-p3-' + str(count) + '.csv'
-        answers.to_csv(filename,index=False)
+    if str(count) in sheet_name:
+        filename = OUTPUT_FILE + '/' + 'query-p3-' + str(count) + '.csv'
+        answers.to_csv(filename, index=False)
         count += 1
     else:
         print(sheet_name)
